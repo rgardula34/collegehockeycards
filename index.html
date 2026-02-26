@@ -20,13 +20,11 @@ body{
   padding:36px 20px 60px;
 }
 
-/* ── Page header ── */
 .page-header{width:100%;max-width:860px;margin-bottom:20px;display:flex;align-items:center;gap:12px;}
 .page-header .redbar{width:6px;height:38px;background:#c8102e;border-radius:3px;flex-shrink:0;}
 .page-header .titles span{font-size:11px;color:#555;letter-spacing:.18em;text-transform:uppercase;}
 .page-header .titles h1{font-size:28px;font-weight:800;letter-spacing:.07em;color:#fff;line-height:1.1;}
 
-/* ── Dropdown ── */
 .dropdown-wrap{width:100%;max-width:860px;margin-bottom:22px;position:relative;display:none;}
 .dropdown-wrap select{
   width:100%;padding:13px 44px 13px 18px;
@@ -39,7 +37,6 @@ body{
 .dropdown-wrap select:focus{border-color:#3b82f6;}
 .dropdown-wrap::after{content:"▾";position:absolute;right:16px;top:50%;transform:translateY(-50%);color:#60a5fa;pointer-events:none;font-size:18px;}
 
-/* ── Loading / empty ── */
 #loadingMsg{
   width:100%;max-width:860px;text-align:center;
   padding:16px;background:#161d2b;border-radius:8px;
@@ -53,7 +50,6 @@ body{
 .empty-state .title{font-size:20px;font-weight:700;color:#374151;}
 .empty-state .sub{font-size:13px;margin-top:8px;color:#4b5563;}
 
-/* ── Card ── */
 .card{width:100%;max-width:860px;display:none;}
 .card-wrap{
   background:linear-gradient(160deg,#111827 0%,#0d1b2a 100%);
@@ -61,7 +57,6 @@ body{
   overflow:hidden;box-shadow:0 12px 50px rgba(0,0,0,.7);
 }
 
-/* banner */
 .card-banner{
   background:linear-gradient(90deg,#192a45 0%,#0f1f38 100%);
   border-bottom:3px solid #c8102e;
@@ -70,12 +65,10 @@ body{
 .card-banner .redbar{width:4px;height:22px;background:#c8102e;border-radius:2px;flex-shrink:0;}
 .card-banner h2{font-size:18px;font-weight:800;letter-spacing:.1em;color:#fff;text-transform:uppercase;}
 
-/* body split */
 .card-body{display:flex;padding:22px 22px 18px;gap:24px;}
 .card-left{flex:1 1 0;min-width:0;}
 .card-right{flex:0 0 260px;border-left:1px solid #1e3a5f;padding-left:22px;}
 
-/* identity */
 .identity{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px;}
 .avatar{
   width:80px;height:80px;border-radius:8px;flex-shrink:0;
@@ -91,10 +84,7 @@ body{
 }
 .name-block .psub{font-size:12px;color:#6b7280;margin-top:4px;letter-spacing:.03em;}
 
-/* meta pills */
-.meta-row{
-  display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;
-}
+.meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
 .meta-pill{
   background:#1a2540;border:1px solid #243044;border-radius:5px;
   padding:4px 10px;font-size:12px;
@@ -102,7 +92,6 @@ body{
 .meta-pill span{color:#6b7280;margin-right:4px;}
 .meta-pill strong{color:#e2e8f0;font-weight:700;}
 
-/* proj box */
 .proj-block{text-align:center;flex-shrink:0;}
 .proj-label{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
 .proj-box{
@@ -112,7 +101,6 @@ body{
   box-shadow:0 4px 16px rgba(0,0,0,.4);
 }
 
-/* stat section */
 .stat-section{margin-top:18px;}
 .stat-section-label{
   font-size:10px;color:#6b7280;text-transform:uppercase;
@@ -131,10 +119,8 @@ body{
 }
 .tile-val:hover{transform:scale(1.04);}
 
-/* data note */
 .data-note{margin-top:14px;font-size:10px;color:#374151;line-height:1.6;}
 
-/* right panel */
 .chart-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6b7280;margin-bottom:8px;}
 .chart-wrap{height:155px;position:relative;}
 
@@ -146,7 +132,6 @@ td{padding:5px 5px;text-align:right;border-bottom:1px solid #0d1117;color:#cbd5e
 td:first-child{text-align:left;color:#6b7280;}
 .pct-pill{border-radius:4px;padding:2px 7px;font-size:11px;font-weight:800;color:#fff;font-family:'Oswald',sans-serif;}
 
-/* footer */
 .card-footer{
   background:#070d18;border-top:1px solid #1a2a3a;
   padding:9px 20px;display:flex;justify-content:space-between;align-items:center;
@@ -173,15 +158,11 @@ td:first-child{text-align:left;color:#6b7280;}
 
 <div class="card" id="card">
   <div class="card-wrap">
-
     <div class="card-banner">
       <div class="redbar"></div>
       <h2 id="bannerName"></h2>
     </div>
-
     <div class="card-body">
-
-      <!-- LEFT -->
       <div class="card-left">
         <div class="identity">
           <div class="avatar">🏒</div>
@@ -195,36 +176,28 @@ td:first-child{text-align:left;color:#6b7280;}
             <div class="proj-box" id="projBox"></div>
           </div>
         </div>
-
         <div class="stat-section">
           <div class="stat-section-label">Offensive</div>
           <div class="tiles" id="offTiles"></div>
         </div>
-
         <div class="stat-section">
           <div class="stat-section-label">Two-Way &amp; Other</div>
           <div class="tiles" id="defTiles"></div>
         </div>
-
         <div class="data-note">
           Percentile ranked among same position group per season &nbsp;·&nbsp; Data: CollegeHockeyInc.com
         </div>
       </div>
-
-      <!-- RIGHT -->
       <div class="card-right">
         <div class="chart-title">Pt/Gm Percentile Trend</div>
         <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
-
         <div class="history-label">Season History</div>
         <table>
           <thead><tr><th>Season</th><th>G</th><th>A</th><th>Pt/Gm</th><th>Pct</th></tr></thead>
           <tbody id="historyBody"></tbody>
         </table>
       </div>
-
     </div>
-
     <div class="card-footer">
       <span class="footer-note">Data: CollegeHockeyInc.com &nbsp;·&nbsp; Percentile ranked within position + season</span>
       <span class="footer-brand">COLLEGE HOCKEY CARDS</span>
