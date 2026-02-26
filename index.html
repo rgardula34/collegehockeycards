@@ -8,114 +8,174 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#1a1a2e;min-height:100vh;font-family:'Barlow Condensed',sans-serif;color:#e2e8f0;display:flex;flex-direction:column;align-items:center;padding:30px 16px;}
 
-/* ── Page title ── */
-.page-title{width:100%;max-width:700px;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
-.page-title .bar{width:5px;height:32px;background:#c8102e;border-radius:3px;}
-.page-title h1{font-size:24px;font-weight:800;letter-spacing:.08em;color:#fff;}
-.page-title span{font-size:11px;color:#666;letter-spacing:.12em;text-transform:uppercase;display:block;}
-
-/* ── Dropdown row ── */
-.dropdown-row{width:100%;max-width:700px;margin-bottom:20px;position:relative;}
-.dropdown-row select{
-  width:100%;padding:11px 16px;
-  background:#111827;border:1px solid #2d3748;border-radius:8px;
-  color:#fff;font-size:14px;font-family:inherit;outline:none;cursor:pointer;
-  appearance:none;-webkit-appearance:none;
+body{
+  background:#0d1117;
+  min-height:100vh;
+  font-family:'Barlow Condensed',sans-serif;
+  color:#e2e8f0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:36px 20px 60px;
 }
-.dropdown-row::after{content:"▾";position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#888;pointer-events:none;font-size:16px;}
 
-/* ── Card shell ── */
-.card{width:100%;max-width:700px;display:none;}
-.card-wrap{background:linear-gradient(160deg,#0f1923 0%,#0a1628 100%);border-radius:10px;border:1px solid #1e3a5f;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.7);}
+/* ── Page header ── */
+.page-header{width:100%;max-width:860px;margin-bottom:20px;display:flex;align-items:center;gap:12px;}
+.page-header .redbar{width:6px;height:38px;background:#c8102e;border-radius:3px;flex-shrink:0;}
+.page-header .titles span{font-size:11px;color:#555;letter-spacing:.18em;text-transform:uppercase;}
+.page-header .titles h1{font-size:28px;font-weight:800;letter-spacing:.07em;color:#fff;line-height:1.1;}
 
-/* ── Card top banner ── */
-.card-banner{background:linear-gradient(90deg,#1a2a4a,#0f1f38);border-bottom:3px solid #c8102e;padding:9px 16px;display:flex;align-items:center;gap:10px;}
-.card-banner .bar{width:4px;height:20px;background:#c8102e;border-radius:2px;}
-.card-banner h2{font-size:17px;font-weight:800;letter-spacing:.08em;color:#fff;text-transform:uppercase;}
+/* ── Dropdown ── */
+.dropdown-wrap{width:100%;max-width:860px;margin-bottom:22px;position:relative;display:none;}
+.dropdown-wrap select{
+  width:100%;padding:13px 44px 13px 18px;
+  background:#161d2b;border:1px solid #243044;border-radius:8px;
+  color:#e2e8f0;font-size:15px;font-family:'Barlow Condensed',sans-serif;font-weight:600;
+  letter-spacing:.03em;outline:none;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  transition:border-color .2s;
+}
+.dropdown-wrap select:focus{border-color:#3b82f6;}
+.dropdown-wrap::after{content:"▾";position:absolute;right:16px;top:50%;transform:translateY(-50%);color:#60a5fa;pointer-events:none;font-size:18px;}
 
-/* ── Card body: left + right ── */
-.card-body{display:flex;gap:0;padding:18px 18px 14px;}
-.card-left{flex:1 1 360px;padding-right:20px;border-right:1px solid #1e3a5f;}
-.card-right{flex:0 0 240px;padding-left:20px;}
+/* ── Loading / empty ── */
+#loadingMsg{
+  width:100%;max-width:860px;text-align:center;
+  padding:16px;background:#161d2b;border-radius:8px;
+  border:1px solid #243044;font-size:13px;color:#60a5fa;margin-bottom:20px;
+}
+.empty-state{
+  width:100%;max-width:860px;text-align:center;
+  padding:64px 20px;color:#2d3748;display:none;
+}
+.empty-state .icon{font-size:56px;margin-bottom:14px;}
+.empty-state .title{font-size:20px;font-weight:700;color:#374151;}
+.empty-state .sub{font-size:13px;margin-top:8px;color:#4b5563;}
 
-/* ── Player identity row ── */
-.identity{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px;}
-.avatar{width:74px;height:74px;border-radius:8px;background:linear-gradient(135deg,#1e3a5f,#2d4a6f);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;border:2px solid #2d4a6f;}
-.player-name-block{flex:1;}
-.player-name-block .name{font-size:21px;font-weight:800;font-style:italic;letter-spacing:.05em;color:#fff;text-transform:uppercase;line-height:1;}
-.player-name-block .sub{font-size:11px;color:#888;margin-top:3px;letter-spacing:.04em;}
+/* ── Card ── */
+.card{width:100%;max-width:860px;display:none;}
+.card-wrap{
+  background:linear-gradient(160deg,#111827 0%,#0d1b2a 100%);
+  border-radius:12px;border:1px solid #1e3a5f;
+  overflow:hidden;box-shadow:0 12px 50px rgba(0,0,0,.7);
+}
+
+/* banner */
+.card-banner{
+  background:linear-gradient(90deg,#192a45 0%,#0f1f38 100%);
+  border-bottom:3px solid #c8102e;
+  padding:11px 20px;display:flex;align-items:center;gap:10px;
+}
+.card-banner .redbar{width:4px;height:22px;background:#c8102e;border-radius:2px;flex-shrink:0;}
+.card-banner h2{font-size:18px;font-weight:800;letter-spacing:.1em;color:#fff;text-transform:uppercase;}
+
+/* body split */
+.card-body{display:flex;padding:22px 22px 18px;gap:24px;}
+.card-left{flex:1 1 0;min-width:0;}
+.card-right{flex:0 0 260px;border-left:1px solid #1e3a5f;padding-left:22px;}
+
+/* identity */
+.identity{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px;}
+.avatar{
+  width:80px;height:80px;border-radius:8px;flex-shrink:0;
+  background:linear-gradient(135deg,#1e3a5f,#2d4a6f);
+  display:flex;align-items:center;justify-content:center;
+  font-size:34px;border:2px solid #2a4a6f;
+}
+.name-block{flex:1;min-width:0;}
+.name-block .pname{
+  font-size:22px;font-weight:800;font-style:italic;
+  letter-spacing:.05em;color:#fff;text-transform:uppercase;
+  line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.name-block .psub{font-size:12px;color:#6b7280;margin-top:4px;letter-spacing:.03em;}
+
+/* meta pills */
+.meta-row{
+  display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;
+}
+.meta-pill{
+  background:#1a2540;border:1px solid #243044;border-radius:5px;
+  padding:4px 10px;font-size:12px;
+}
+.meta-pill span{color:#6b7280;margin-right:4px;}
+.meta-pill strong{color:#e2e8f0;font-weight:700;}
+
+/* proj box */
 .proj-block{text-align:center;flex-shrink:0;}
-.proj-label{font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;}
-.proj-box{width:70px;height:70px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#fff;font-family:'Oswald',sans-serif;}
+.proj-label{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
+.proj-box{
+  width:78px;height:78px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;font-weight:900;color:#fff;font-family:'Oswald',sans-serif;
+  box-shadow:0 4px 16px rgba(0,0,0,.4);
+}
 
-/* ── Info grid (Pos, Yr, GP, Season) ── */
-.meta-grid{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:3px 10px;font-size:12px;margin-bottom:16px;padding:10px 12px;background:rgba(255,255,255,.03);border-radius:6px;border:1px solid #1e3a5f;}
-.ml{color:#888;}.mv{color:#e2e8f0;font-weight:700;}
+/* stat section */
+.stat-section{margin-top:18px;}
+.stat-section-label{
+  font-size:10px;color:#6b7280;text-transform:uppercase;
+  letter-spacing:.12em;margin-bottom:8px;
+  padding-bottom:5px;border-bottom:1px solid #1e3a5f;
+}
+.tiles{display:flex;gap:7px;}
+.tile{flex:1;text-align:center;}
+.tile-label{font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;white-space:nowrap;}
+.tile-val{
+  display:block;border-radius:6px;
+  padding:11px 4px;font-size:22px;font-weight:900;
+  color:#fff;font-family:'Oswald',sans-serif;
+  box-shadow:0 3px 10px rgba(0,0,0,.35);
+  transition:transform .15s;
+}
+.tile-val:hover{transform:scale(1.04);}
 
-/* ── Stat boxes (like JFresh row of colored pct tiles) ── */
-.stat-section-label{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;margin-top:12px;}
-.stat-boxes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;}
-.stat-tile{flex:1;min-width:58px;text-align:center;}
-.tile-label{font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;white-space:nowrap;}
-.tile-val{border-radius:5px;padding:9px 4px;font-size:20px;font-weight:900;color:#fff;font-family:'Oswald',sans-serif;display:block;}
+/* data note */
+.data-note{margin-top:14px;font-size:10px;color:#374151;line-height:1.6;}
 
-/* ── Right side: trend chart ── */
-.chart-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#aaa;margin-bottom:6px;}
-.chart-wrap{position:relative;height:140px;}
+/* right panel */
+.chart-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6b7280;margin-bottom:8px;}
+.chart-wrap{height:155px;position:relative;}
 
-.trend-legend{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;}
-.legend-item{font-size:10px;display:flex;align-items:center;gap:4px;color:#aaa;}
-.legend-dot{width:10px;height:10px;border-radius:50%;}
-
-/* season history */
-.history-label{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.08em;margin:14px 0 6px;}
+.history-label{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.1em;margin:16px 0 7px;}
 table{width:100%;border-collapse:collapse;font-size:11px;}
-th{padding:3px 4px;color:#666;text-align:right;font-weight:600;border-bottom:1px solid #1e3a5f;font-size:10px;}
+th{padding:4px 5px;color:#4b5563;text-align:right;font-weight:600;border-bottom:1px solid #1e3a5f;font-size:10px;letter-spacing:.04em;}
 th:first-child{text-align:left;}
-td{padding:4px 4px;text-align:right;border-bottom:1px solid #111827;color:#cbd5e1;}
-td:first-child{text-align:left;color:#888;}
-.pct-pill{border-radius:3px;padding:1px 5px;font-size:10px;font-weight:700;color:#fff;}
+td{padding:5px 5px;text-align:right;border-bottom:1px solid #0d1117;color:#cbd5e1;}
+td:first-child{text-align:left;color:#6b7280;}
+.pct-pill{border-radius:4px;padding:2px 7px;font-size:11px;font-weight:800;color:#fff;font-family:'Oswald',sans-serif;}
 
-/* ── Footer ── */
-.card-footer{background:#070d18;border-top:1px solid #1e3a5f;padding:7px 16px;display:flex;justify-content:space-between;align-items:center;}
-.footer-note{font-size:10px;color:#444;}
-.footer-brand{font-size:11px;font-weight:700;color:#1e3a5f;letter-spacing:.1em;}
-
-/* ── Empty state ── */
-.empty{width:100%;max-width:700px;text-align:center;padding:60px 20px;color:#334155;}
-.empty-icon{font-size:52px;margin-bottom:12px;}
-.empty-title{font-size:18px;font-weight:700;}
-.empty-sub{font-size:12px;margin-top:6px;}
-
-/* ── Loading ── */
-#loadingMsg{font-size:13px;color:#60a5fa;padding:14px 18px;background:#111827;border-radius:8px;border:1px solid #1e3a5f;width:100%;max-width:700px;text-align:center;margin-bottom:16px;}
+/* footer */
+.card-footer{
+  background:#070d18;border-top:1px solid #1a2a3a;
+  padding:9px 20px;display:flex;justify-content:space-between;align-items:center;
+}
+.footer-note{font-size:10px;color:#374151;}
+.footer-brand{font-size:12px;font-weight:800;color:#1e3a5f;letter-spacing:.12em;}
 </style>
 </head>
 <body>
 
-<div class="page-title">
-  <div class="bar"></div>
-  <div>
-    <span>College Hockey Stats · 2021–22 to 2025–26</span>
+<div class="page-header">
+  <div class="redbar"></div>
+  <div class="titles">
+    <span>College Hockey Stats &nbsp;·&nbsp; 2021–22 to 2025–26</span>
     <h1>PLAYER CARDS</h1>
   </div>
 </div>
 
 <div id="loadingMsg">⚡ Loading player data...</div>
 
-<div class="dropdown-row" style="display:none;" id="dropdownWrap">
-  <select id="playerSelect">
-    <option value="">— Select a player —</option>
-  </select>
+<div class="dropdown-wrap" id="dropdownWrap">
+  <select id="playerSelect"><option value="">— Select a player —</option></select>
 </div>
 
 <div class="card" id="card">
   <div class="card-wrap">
 
     <div class="card-banner">
-      <div class="bar"></div>
+      <div class="redbar"></div>
       <h2 id="bannerName"></h2>
     </div>
 
@@ -123,15 +183,12 @@ td:first-child{text-align:left;color:#888;}
 
       <!-- LEFT -->
       <div class="card-left">
-
         <div class="identity">
           <div class="avatar">🏒</div>
-          <div class="player-name-block">
-            <div class="name" id="playerName"></div>
-            <div class="sub" id="playerSub"></div>
-            <div style="margin-top:8px;">
-              <div class="meta-grid" id="metaGrid"></div>
-            </div>
+          <div class="name-block">
+            <div class="pname" id="playerName"></div>
+            <div class="psub" id="playerSub"></div>
+            <div class="meta-row" id="metaRow"></div>
           </div>
           <div class="proj-block">
             <div class="proj-label">Pt/Gm Pct</div>
@@ -139,23 +196,25 @@ td:first-child{text-align:left;color:#888;}
           </div>
         </div>
 
-        <div class="stat-section-label">Offensive</div>
-        <div class="stat-boxes" id="offBoxes"></div>
+        <div class="stat-section">
+          <div class="stat-section-label">Offensive</div>
+          <div class="tiles" id="offTiles"></div>
+        </div>
 
-        <div class="stat-section-label">Two-Way &amp; Other</div>
-        <div class="stat-boxes" id="defBoxes"></div>
+        <div class="stat-section">
+          <div class="stat-section-label">Two-Way &amp; Other</div>
+          <div class="tiles" id="defTiles"></div>
+        </div>
 
-        <div style="margin-top:12px;font-size:10px;color:#444;line-height:1.5;">
-          Percentile ranked among same position group per season · Data: CollegeHockeyInc.com
+        <div class="data-note">
+          Percentile ranked among same position group per season &nbsp;·&nbsp; Data: CollegeHockeyInc.com
         </div>
       </div>
 
       <!-- RIGHT -->
       <div class="card-right">
         <div class="chart-title">Pt/Gm Percentile Trend</div>
-        <div class="chart-wrap">
-          <canvas id="trendChart"></canvas>
-        </div>
+        <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
 
         <div class="history-label">Season History</div>
         <table>
@@ -167,20 +226,20 @@ td:first-child{text-align:left;color:#888;}
     </div>
 
     <div class="card-footer">
-      <span class="footer-note">Data: CollegeHockeyInc.com · Percentile ranked within position + season</span>
+      <span class="footer-note">Data: CollegeHockeyInc.com &nbsp;·&nbsp; Percentile ranked within position + season</span>
       <span class="footer-brand">COLLEGE HOCKEY CARDS</span>
     </div>
   </div>
 </div>
 
-<div class="empty" id="emptyState" style="display:none;">
-  <div class="empty-icon">🏒</div>
-  <div class="empty-title">Select a player to view their card</div>
-  <div class="empty-sub" id="playerCount"></div>
+<div class="empty-state" id="emptyState">
+  <div class="icon">🏒</div>
+  <div class="title">Select a player to view their card</div>
+  <div class="sub" id="playerCount"></div>
 </div>
 
 <script>
-var nameIndex = {}, allNames = [], trendChart = null;
+var nameIndex={}, allNames=[], trendChart=null;
 
 fetch("hockey_data.json")
   .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
@@ -193,9 +252,8 @@ fetch("hockey_data.json")
 
     var sel = document.getElementById("playerSelect");
     allNames.forEach(function(n){
-      var opt = document.createElement("option");
-      opt.value = n; opt.textContent = n;
-      sel.appendChild(opt);
+      var o = document.createElement("option");
+      o.value = n; o.textContent = n; sel.appendChild(o);
     });
 
     document.getElementById("loadingMsg").style.display = "none";
@@ -206,13 +264,13 @@ fetch("hockey_data.json")
   })
   .catch(function(err){
     document.getElementById("loadingMsg").textContent =
-      "⚠️ Could not load hockey_data.json — make sure it's in the same folder. (" + err.message + ")";
+      "⚠️ Could not load hockey_data.json — make sure it is in the same folder. (" + err.message + ")";
     document.getElementById("loadingMsg").style.color = "#f87171";
   });
 
 document.getElementById("playerSelect").addEventListener("change", function(){
   var name = this.value;
-  if(!name){ 
+  if(!name){
     document.getElementById("card").style.display = "none";
     document.getElementById("emptyState").style.display = "block";
     return;
@@ -221,18 +279,18 @@ document.getElementById("playerSelect").addEventListener("change", function(){
 });
 
 function pctColor(v){
-  if(v==null) return "#2a2a2a";
-  if(v>=90) return "#1565c0";
-  if(v>=75) return "#1976d2";
-  if(v>=50) return "#7b1fa2";
-  if(v>=25) return "#6a1a1a";
-  return "#2a2a2a";
+  if(v==null) return "#1f2937";
+  if(v>=90)   return "#1565c0";
+  if(v>=75)   return "#1976d2";
+  if(v>=50)   return "#7b1fa2";
+  if(v>=25)   return "#7f1d1d";
+  return "#1f2937";
 }
 function pctFmt(v){ return (v==null) ? "N/A" : Math.round(v)+"%"; }
 function numFmt(v,d){ return (v==null) ? "—" : Number(v).toFixed(d||0); }
 
 function tile(label, val){
-  return '<div class="stat-tile">' +
+  return '<div class="tile">' +
     '<div class="tile-label">'+label+'</div>' +
     '<span class="tile-val" style="background:'+pctColor(val)+'">'+pctFmt(val)+'</span>' +
     '</div>';
@@ -248,33 +306,33 @@ function showPlayer(name){
 
   document.getElementById("bannerName").textContent = name.toUpperCase();
   document.getElementById("playerName").textContent = name.toUpperCase();
-  document.getElementById("playerSub").textContent =
-    (cur.Team||"") + " · " + (cur.Pos_Group||"") + " · " + (cur.Season||"");
+  document.getElementById("playerSub").textContent = (cur.Team||"") + " · " + (cur.Pos_Group||"") + " · " + (cur.Season||"");
 
-  document.getElementById("metaGrid").innerHTML =
-    '<span class="ml">Pos</span><span class="mv">'+(cur.Pos_Group||"—")+'</span>' +
-    '<span class="ml">Year</span><span class="mv">'+(cur.Yr||"—")+'</span>' +
-    '<span class="ml">GP</span><span class="mv">'+numFmt(cur.GP)+'</span>' +
-    '<span class="ml">Season</span><span class="mv">'+(cur.Season||"—")+'</span>';
+  document.getElementById("metaRow").innerHTML =
+    '<div class="meta-pill"><span>Pos</span><strong>'+(cur.Pos_Group||"—")+'</strong></div>' +
+    '<div class="meta-pill"><span>Year</span><strong>'+(cur.Yr||"—")+'</strong></div>' +
+    '<div class="meta-pill"><span>GP</span><strong>'+numFmt(cur.GP)+'</strong></div>' +
+    '<div class="meta-pill"><span>G</span><strong>'+numFmt(cur.G)+'</strong></div>' +
+    '<div class="meta-pill"><span>A</span><strong>'+numFmt(cur.A)+'</strong></div>' +
+    '<div class="meta-pill"><span>Pt/Gm</span><strong>'+numFmt(cur["Pt/Gm"],2)+'</strong></div>';
 
   var pb = document.getElementById("projBox");
   pb.textContent = pctFmt(cur.PtGm_pct);
   pb.style.background = pctColor(cur.PtGm_pct);
 
-  document.getElementById("offBoxes").innerHTML =
-    tile("Pt/Gm", cur.PtGm_pct) +
-    tile("Goals", cur.G_pct) +
+  document.getElementById("offTiles").innerHTML =
+    tile("Pt/Gm",   cur.PtGm_pct) +
+    tile("Goals",   cur.G_pct) +
     tile("Assists", cur.A_pct) +
-    tile("Shots", cur.Shots_pct) +
-    tile("PPG", cur.PPG_pct);
+    tile("Shots",   cur.Shots_pct) +
+    tile("PPG",     cur.PPG_pct);
 
-  document.getElementById("defBoxes").innerHTML =
-    tile("SHG", cur.SHG_pct) +
-    tile("+/-", cur["+/-_pct"]) +
+  document.getElementById("defTiles").innerHTML =
+    tile("SHG",    cur.SHG_pct) +
+    tile("+/-",    cur["+/-_pct"]) +
     tile("Blocks", cur.Blk_pct) +
-    tile("FO%", cur.FO_pct);
+    tile("FO%",    cur.FO_pct);
 
-  // Trend chart
   var seasons = rows.map(function(r){ return r.Season; });
   var pcts    = rows.map(function(r){ return r.PtGm_pct; });
   var gPcts   = rows.map(function(r){ return r.G_pct; });
@@ -283,35 +341,36 @@ function showPlayer(name){
   var ctx = document.getElementById("trendChart").getContext("2d");
   if(trendChart) trendChart.destroy();
   trendChart = new Chart(ctx, {
-    type: "line",
-    data: {
+    type:"line",
+    data:{
       labels: seasons,
-      datasets: [
-        { label:"Pt/Gm", data:pcts,  borderColor:"#60a5fa", backgroundColor:"rgba(96,165,250,0.08)", borderWidth:2.5, pointBackgroundColor:"#60a5fa", pointRadius:4, tension:0.3, fill:true },
-        { label:"Goals", data:gPcts, borderColor:"#f87171", backgroundColor:"transparent",            borderWidth:1.5, pointBackgroundColor:"#f87171", pointRadius:3, tension:0.3 },
-        { label:"Assists",data:aPcts,borderColor:"#a78bfa", backgroundColor:"transparent",            borderWidth:1.5, pointBackgroundColor:"#a78bfa", pointRadius:3, tension:0.3, borderDash:[4,3] }
+      datasets:[
+        { label:"Pt/Gm",  data:pcts,  borderColor:"#60a5fa", backgroundColor:"rgba(96,165,250,0.1)", borderWidth:2.5, pointBackgroundColor:"#60a5fa", pointRadius:4, tension:0.3, fill:true },
+        { label:"Goals",  data:gPcts, borderColor:"#f87171", backgroundColor:"transparent", borderWidth:1.5, pointBackgroundColor:"#f87171", pointRadius:3, tension:0.3 },
+        { label:"Assists",data:aPcts, borderColor:"#a78bfa", backgroundColor:"transparent", borderWidth:1.5, pointBackgroundColor:"#a78bfa", pointRadius:3, tension:0.3, borderDash:[5,3] }
       ]
     },
     options:{
       responsive:true, maintainAspectRatio:false,
       plugins:{
-        legend:{display:true, position:"bottom", labels:{color:"#888",font:{size:10},boxWidth:10,padding:8}},
-        tooltip:{callbacks:{label:function(c){ return c.dataset.label+": "+Math.round(c.parsed.y)+"%"; }}}
+        legend:{ display:true, position:"bottom", labels:{ color:"#6b7280", font:{size:10}, boxWidth:10, padding:10 } },
+        tooltip:{ callbacks:{ label:function(c){ return c.dataset.label+": "+Math.round(c.parsed.y)+"%"; } } }
       },
       scales:{
-        y:{min:0,max:100,ticks:{color:"#666",font:{size:9},stepSize:25},grid:{color:"#111827"}},
-        x:{ticks:{color:"#666",font:{size:9}},grid:{color:"#111827"}}
+        y:{ min:0, max:100, ticks:{ color:"#4b5563", font:{size:9}, stepSize:25 }, grid:{ color:"#161d2b" } },
+        x:{ ticks:{ color:"#4b5563", font:{size:9} }, grid:{ color:"#161d2b" } }
       }
     }
   });
 
-  // History table
   document.getElementById("historyBody").innerHTML = rows.map(function(r){
-    return "<tr><td>"+r.Season+"</td>" +
+    return "<tr>" +
+      "<td>"+r.Season+"</td>" +
       "<td>"+numFmt(r.G)+"</td>" +
       "<td>"+numFmt(r.A)+"</td>" +
       "<td>"+numFmt(r["Pt/Gm"],2)+"</td>" +
-      '<td><span class="pct-pill" style="background:'+pctColor(r.PtGm_pct)+'">'+pctFmt(r.PtGm_pct)+"</span></td></tr>";
+      '<td><span class="pct-pill" style="background:'+pctColor(r.PtGm_pct)+'">'+pctFmt(r.PtGm_pct)+"</span></td>" +
+      "</tr>";
   }).join("");
 }
 </script>
