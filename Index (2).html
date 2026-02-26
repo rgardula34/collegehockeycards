@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>College Hockey Player Cards</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Oswald:wght@500;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:linear-gradient(135deg,#0a0a1a 0%,#0d1b2a 50%,#0a0a1a 100%);min-height:100vh;font-family:'Barlow Condensed',sans-serif;color:#e2e8f0;padding:28px 16px;display:flex;flex-direction:column;align-items:center;}
+h1{font-size:28px;font-weight:800;letter-spacing:.06em;color:#fff;}
+.subtitle{font-size:11px;color:#888;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px;}
+.search-wrap{position:relative;width:100%;max-width:680px;margin-bottom:6px;}
+#searchInput{width:100%;padding:12px 16px;background:#111827;border:1px solid #2d3748;border-radius:8px;color:#fff;font-size:15px;font-family:inherit;outline:none;}
+#searchInput:focus{border-color:#3b82f6;}
+#searchInput:disabled{opacity:0.5;cursor:not-allowed;}
+#suggestions{position:absolute;top:100%;left:0;right:0;background:#1a2035;border:1px solid #2d3748;border-top:none;border-radius:0 0 8px 8px;z-index:10;max-height:240px;overflow-y:auto;display:none;}
+.sug-item{padding:10px 16px;cursor:pointer;font-size:14px;color:#e2e8f0;border-bottom:1px solid #1e293b;}
+.sug-item:hover,.sug-item.active{background:#2d3a50;}
+.hint{font-size:11px;color:#555;margin-bottom:20px;max-width:680px;width:100%;}
+#loadingMsg{font-size:13px;color:#60a5fa;margin-bottom:20px;max-width:680px;width:100%;text-align:center;padding:16px;background:#111827;border-radius:8px;border:1px solid #1e3a5f;}
+#card{width:100%;max-width:680px;display:none;}
+.card-wrap{background:linear-gradient(160deg,#111827 0%,#0d1b2a 100%);border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6);}
+.card-header{background:linear-gradient(90deg,#1a2a4a 0%,#0f1f38 100%);border-bottom:3px solid #c8102e;padding:10px 18px;display:flex;align-items:center;gap:10px;}
+.accent-bar{width:4px;height:22px;background:#c8102e;border-radius:2px;flex-shrink:0;}
+.player-name-header{font-weight:800;font-size:18px;letter-spacing:.08em;}
+.card-body{padding:20px;display:flex;gap:20px;flex-wrap:wrap;}
+.left{flex:1 1 300px;}.right{flex:1 1 220px;min-width:200px;}
+.info-row{display:flex;gap:16px;align-items:flex-start;margin-bottom:18px;}
+.avatar{width:72px;height:72px;border-radius:8px;background:linear-gradient(135deg,#1e3a5f,#2d4a6f);display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;border:2px solid #2d4a6f;}
+.info-grid{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font-size:12px;flex:1;}
+.info-label{color:#888;}.info-val{color:#e2e8f0;font-weight:600;}
+.overall-badge{text-align:center;flex-shrink:0;}
+.overall-label{font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.overall-box{width:64px;height:64px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;font-family:'Oswald',sans-serif;}
+.stat-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.stat-box{text-align:center;flex:1;min-width:60px;}
+.stat-label{font-size:9px;color:#aaa;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;}
+.stat-val{border-radius:4px;padding:8px 4px;font-size:17px;font-weight:800;color:#fff;font-family:'Oswald',sans-serif;}
+.data-note{margin-top:14px;font-size:10px;color:#555;line-height:1.5;}
+.chart-title{font-size:11px;font-weight:700;letter-spacing:.08em;margin-bottom:6px;text-transform:uppercase;color:#aaa;}
+.history-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px;}
+table{width:100%;border-collapse:collapse;font-size:11px;}
+th{padding:3px 5px;color:#888;text-align:right;font-weight:600;border-bottom:1px solid #2d3748;}
+th:first-child{text-align:left;}
+td{padding:4px 5px;text-align:right;border-bottom:1px solid #1a2035;color:#e2e8f0;}
+td:first-child{text-align:left;color:#aaa;}
+.pct-badge{border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700;color:#fff;}
+.card-footer{background:#0a0f1e;border-top:1px solid #1e3a5f;padding:8px 18px;display:flex;justify-content:space-between;align-items:center;}
+.footer-note{font-size:10px;color:#555;}.footer-brand{font-size:11px;font-weight:700;color:#2d4a6f;letter-spacing:.08em;}
+.empty-state{width:100%;max-width:680px;background:#111827;border-radius:12px;border:1px dashed #2d3748;padding:48px;text-align:center;color:#4a5568;}
+.empty-icon{font-size:48px;margin-bottom:12px;}
+.empty-title{font-size:16px;font-weight:700;color:#6b7280;}
+.empty-sub{font-size:12px;margin-top:8px;}
+</style>
+</head>
+<body>
+<div style="width:100%;max-width:680px;margin-bottom:24px;">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+    <div style="width:6px;height:36px;background:#c8102e;border-radius:3px;"></div>
+    <div><div class="subtitle">College Hockey Stats</div><h1>PLAYER CARD</h1></div>
+  </div>
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="Loading player data..." autocomplete="off" disabled/>
+    <div id="suggestions"></div>
+  </div>
+  <div class="hint">2021-22 through 2025-26 &nbsp;·&nbsp; Percentile ranked within position &amp; season &nbsp;·&nbsp; Data: CollegeHockeyInc.com</div>
+</div>
+<div id="loadingMsg">&#9889; Loading player data...</div>
+<div id="card">
+  <div class="card-wrap">
+    <div class="card-header"><div class="accent-bar"></div><span class="player-name-header" id="headerName"></span></div>
+    <div class="card-body">
+      <div class="left">
+        <div class="info-row">
+          <div class="avatar">&#127944;</div>
+          <div style="flex:1;">
+            <div style="font-size:20px;font-weight:800;letter-spacing:.04em;margin-bottom:6px;" id="cardName"></div>
+            <div class="info-grid" id="infoGrid"></div>
+          </div>
+          <div class="overall-badge">
+            <div class="overall-label">Overall Pct</div>
+            <div class="overall-box" id="overallBox"></div>
+          </div>
+        </div>
+        <div class="stat-row" id="statRow1"></div>
+        <div class="stat-row" id="statRow2"></div>
+        <div class="data-note">Percentile rankings among same position group in same season.<br/>Data from CollegeHockeyInc.com.</div>
+      </div>
+      <div class="right">
+        <div class="chart-title">Pt/Gm Percentile Trend</div>
+        <canvas id="trendChart"></canvas>
+        <div class="history-label">Season History</div>
+        <table>
+          <thead><tr><th>Season</th><th>GP</th><th>G</th><th>A</th><th>Pt/Gm</th><th>Pct</th></tr></thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card-footer">
+      <span class="footer-note">Percentile ranked within position + season</span>
+      <span class="footer-brand">COLLEGE HOCKEY CARDS</span>
+    </div>
+  </div>
+</div>
+<div class="empty-state" id="emptyState" style="display:none;">
+  <div class="empty-icon">&#127944;</div>
+  <div class="empty-title">Search for a player to see their card</div>
+  <div class="empty-sub" id="playerCount">3,300+ college hockey players across 5 seasons</div>
+</div>
+<script>
+var nameIndex={},allNames=[],trendChart=null,activeIdx=-1;
+var searchInput=document.getElementById("searchInput");
+var sugDiv=document.getElementById("suggestions");
+
+fetch("hockey_data.json")
+  .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
+  .then(function(data){
+    data.forEach(function(row){
+      if(!nameIndex[row.Name])nameIndex[row.Name]=[];
+      nameIndex[row.Name].push(row);
+    });
+    allNames=Object.keys(nameIndex).sort();
+    document.getElementById("loadingMsg").style.display="none";
+    document.getElementById("emptyState").style.display="block";
+    document.getElementById("playerCount").textContent=allNames.length.toLocaleString()+" players across 5 seasons (2021-22 to 2025-26)";
+    searchInput.disabled=false;
+    searchInput.placeholder="Search player name...";
+  })
+  .catch(function(err){
+    document.getElementById("loadingMsg").textContent="Could not load data. Make sure hockey_data.json is in the same folder as this HTML file. ("+err.message+")";
+    document.getElementById("loadingMsg").style.color="#f87171";
+  });
+
+function pctColor(v){if(v==null)return"#3a3a3a";if(v>=90)return"#1565c0";if(v>=75)return"#1976d2";if(v>=50)return"#7b1fa2";if(v>=25)return"#6a1a1a";return"#3a3a3a";}
+function pctFmt(v){return(v==null)?"N/A":Math.round(v)+"%";}
+function numFmt(v,d){return(v==null)?"—":Number(v).toFixed(d||0);}
+function statBox(label,value){return'<div class="stat-box"><div class="stat-label">'+label+'</div><div class="stat-val" style="background:'+pctColor(value)+'">'+pctFmt(value)+'</div></div>';}
+
+searchInput.addEventListener("input",function(){
+  activeIdx=-1;
+  var q=searchInput.value.trim().toLowerCase();
+  if(q.length<2){sugDiv.style.display="none";return;}
+  var matches=allNames.filter(function(n){return n.toLowerCase().includes(q);}).slice(0,12);
+  if(!matches.length){sugDiv.style.display="none";return;}
+  sugDiv.innerHTML=matches.map(function(n){return'<div class="sug-item" onclick="selectPlayer('+JSON.stringify(n)+')">'+n+'</div>';}).join("");
+  sugDiv.style.display="block";
+});
+searchInput.addEventListener("keydown",function(e){
+  var items=sugDiv.querySelectorAll(".sug-item");
+  if(!items.length)return;
+  if(e.key==="ArrowDown"){e.preventDefault();activeIdx=Math.min(activeIdx+1,items.length-1);}
+  else if(e.key==="ArrowUp"){e.preventDefault();activeIdx=Math.max(activeIdx-1,0);}
+  else if(e.key==="Enter"&&activeIdx>=0){items[activeIdx].click();return;}
+  else return;
+  items.forEach(function(el,i){el.classList.toggle("active",i===activeIdx);});
+});
+document.addEventListener("click",function(e){if(!e.target.closest(".search-wrap"))sugDiv.style.display="none";});
+
+function selectPlayer(name){
+  searchInput.value=name;
+  sugDiv.style.display="none";
+  var rows=(nameIndex[name]||[]).slice().sort(function(a,b){return a.Season.localeCompare(b.Season);});
+  if(!rows.length)return;
+  var cur=rows[rows.length-1];
+  document.getElementById("card").style.display="block";
+  document.getElementById("emptyState").style.display="none";
+  document.getElementById("headerName").textContent=name.toUpperCase();
+  document.getElementById("cardName").textContent=name.toUpperCase();
+  document.getElementById("infoGrid").innerHTML=[["Pos",cur.Pos_Group],["Year",cur.Yr],["Team",cur.Team],["GP",cur.GP],["Season",cur.Season]].map(function(p){return'<span class="info-label">'+p[0]+':</span><span class="info-val">'+(p[1]!=null?p[1]:"—")+"</span>";}).join("");
+  var ob=document.getElementById("overallBox");
+  ob.textContent=pctFmt(cur.PtGm_pct);ob.style.background=pctColor(cur.PtGm_pct);
+  document.getElementById("statRow1").innerHTML=[["Pt/Gm","PtGm_pct"],["Goals","G_pct"],["Assists","A_pct"],["Shots","Shots_pct"]].map(function(p){return statBox(p[0],cur[p[1]]);}).join("");
+  document.getElementById("statRow2").innerHTML=[["PPG","PPG_pct"],["SHG","SHG_pct"],["+/-","+/-_pct"],["Blocks","Blk_pct"],["FO%","FO_pct"]].map(function(p){return statBox(p[0],cur[p[1]]);}).join("");
+  var seasons=rows.map(function(r){return r.Season;});
+  var pcts=rows.map(function(r){return r.PtGm_pct;});
+  var ctx=document.getElementById("trendChart").getContext("2d");
+  if(trendChart)trendChart.destroy();
+  trendChart=new Chart(ctx,{type:"line",data:{labels:seasons,datasets:[{data:pcts,borderColor:"#60a5fa",backgroundColor:"rgba(96,165,250,0.1)",borderWidth:2.5,pointBackgroundColor:"#60a5fa",pointRadius:4,tension:0.3,fill:true}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return Math.round(c.parsed.y)+"%";}}}},scales:{y:{min:0,max:100,ticks:{color:"#888",font:{size:10}},grid:{color:"#1a2035"}},x:{ticks:{color:"#888",font:{size:10}},grid:{color:"#1a2035"}}}}});
+  document.getElementById("historyBody").innerHTML=rows.map(function(r){return"<tr><td>"+r.Season+"</td><td>"+numFmt(r.GP)+"</td><td>"+numFmt(r.G)+"</td><td>"+numFmt(r.A)+"</td><td>"+numFmt(r["Pt/Gm"],2)+'</td><td><span class="pct-badge" style="background:'+pctColor(r.PtGm_pct)+'">'+pctFmt(r.PtGm_pct)+"</span></td></tr>";}).join("");
+}
+</script>
+</body>
+</html>
