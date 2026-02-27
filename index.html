@@ -8,60 +8,38 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-
-body{
-  background:#0d1117;
-  min-height:100vh;
-  font-family:'Barlow Condensed',sans-serif;
-  color:#e2e8f0;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding:36px 20px 60px;
-}
+body{background:#0d1117;min-height:100vh;font-family:'Barlow Condensed',sans-serif;color:#e2e8f0;display:flex;flex-direction:column;align-items:center;padding:36px 20px 60px;}
 
 .page-header{width:100%;max-width:860px;margin-bottom:20px;display:flex;align-items:center;gap:12px;}
 .page-header .redbar{width:6px;height:38px;background:#c8102e;border-radius:3px;flex-shrink:0;}
 .page-header .titles span{font-size:11px;color:#555;letter-spacing:.18em;text-transform:uppercase;}
 .page-header .titles h1{font-size:28px;font-weight:800;letter-spacing:.07em;color:#fff;line-height:1.1;}
 
-.dropdown-wrap{width:100%;max-width:860px;margin-bottom:22px;position:relative;display:none;}
-.dropdown-wrap select{
-  width:100%;padding:13px 44px 13px 18px;
+/* ── Filter row ── */
+.filters{width:100%;max-width:860px;display:none;gap:10px;margin-bottom:22px;flex-wrap:wrap;}
+.filter-wrap{position:relative;flex:1;min-width:180px;}
+.filter-label{font-size:9px;color:#6b7280;text-transform:uppercase;letter-spacing:.12em;margin-bottom:5px;}
+.filter-wrap select{
+  width:100%;padding:11px 40px 11px 14px;
   background:#161d2b;border:1px solid #243044;border-radius:8px;
-  color:#e2e8f0;font-size:15px;font-family:'Barlow Condensed',sans-serif;font-weight:600;
+  color:#e2e8f0;font-size:14px;font-family:'Barlow Condensed',sans-serif;font-weight:600;
   letter-spacing:.03em;outline:none;cursor:pointer;
-  appearance:none;-webkit-appearance:none;
-  transition:border-color .2s;
+  appearance:none;-webkit-appearance:none;transition:border-color .2s;
 }
-.dropdown-wrap select:focus{border-color:#3b82f6;}
-.dropdown-wrap::after{content:"▾";position:absolute;right:16px;top:50%;transform:translateY(-50%);color:#60a5fa;pointer-events:none;font-size:18px;}
+.filter-wrap select:focus{border-color:#3b82f6;}
+.filter-wrap::after{content:"▾";position:absolute;right:13px;bottom:11px;color:#60a5fa;pointer-events:none;font-size:16px;}
 
-#loadingMsg{
-  width:100%;max-width:860px;text-align:center;
-  padding:16px;background:#161d2b;border-radius:8px;
-  border:1px solid #243044;font-size:13px;color:#60a5fa;margin-bottom:20px;
-}
-.empty-state{
-  width:100%;max-width:860px;text-align:center;
-  padding:64px 20px;color:#2d3748;display:none;
-}
+#loadingMsg{width:100%;max-width:860px;text-align:center;padding:16px;background:#161d2b;border-radius:8px;border:1px solid #243044;font-size:13px;color:#60a5fa;margin-bottom:20px;}
+
+.empty-state{width:100%;max-width:860px;text-align:center;padding:64px 20px;color:#2d3748;display:none;}
 .empty-state .icon{font-size:56px;margin-bottom:14px;}
 .empty-state .title{font-size:20px;font-weight:700;color:#374151;}
 .empty-state .sub{font-size:13px;margin-top:8px;color:#4b5563;}
 
 .card{width:100%;max-width:860px;display:none;}
-.card-wrap{
-  background:linear-gradient(160deg,#111827 0%,#0d1b2a 100%);
-  border-radius:12px;border:1px solid #1e3a5f;
-  overflow:hidden;box-shadow:0 12px 50px rgba(0,0,0,.7);
-}
+.card-wrap{background:linear-gradient(160deg,#111827 0%,#0d1b2a 100%);border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;box-shadow:0 12px 50px rgba(0,0,0,.7);}
 
-.card-banner{
-  background:linear-gradient(90deg,#192a45 0%,#0f1f38 100%);
-  border-bottom:3px solid #c8102e;
-  padding:11px 20px;display:flex;align-items:center;gap:10px;
-}
+.card-banner{background:linear-gradient(90deg,#192a45 0%,#0f1f38 100%);border-bottom:3px solid #c8102e;padding:11px 20px;display:flex;align-items:center;gap:10px;}
 .card-banner .redbar{width:4px;height:22px;background:#c8102e;border-radius:2px;flex-shrink:0;}
 .card-banner h2{font-size:18px;font-weight:800;letter-spacing:.1em;color:#fff;text-transform:uppercase;}
 
@@ -70,60 +48,31 @@ body{
 .card-right{flex:0 0 260px;border-left:1px solid #1e3a5f;padding-left:22px;}
 
 .identity{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px;}
-.avatar{
-  width:80px;height:80px;border-radius:8px;flex-shrink:0;
-  background:linear-gradient(135deg,#1e3a5f,#2d4a6f);
-  display:flex;align-items:center;justify-content:center;
-  font-size:34px;border:2px solid #2a4a6f;
-}
+.avatar{width:80px;height:80px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,#1e3a5f,#2d4a6f);display:flex;align-items:center;justify-content:center;font-size:34px;border:2px solid #2a4a6f;}
 .name-block{flex:1;min-width:0;}
-.name-block .pname{
-  font-size:22px;font-weight:800;font-style:italic;
-  letter-spacing:.05em;color:#fff;text-transform:uppercase;
-  line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
+.name-block .pname{font-size:22px;font-weight:800;font-style:italic;letter-spacing:.05em;color:#fff;text-transform:uppercase;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .name-block .psub{font-size:12px;color:#6b7280;margin-top:4px;letter-spacing:.03em;}
-
 .meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
-.meta-pill{
-  background:#1a2540;border:1px solid #243044;border-radius:5px;
-  padding:4px 10px;font-size:12px;
-}
+.meta-pill{background:#1a2540;border:1px solid #243044;border-radius:5px;padding:4px 10px;font-size:12px;}
 .meta-pill span{color:#6b7280;margin-right:4px;}
 .meta-pill strong{color:#e2e8f0;font-weight:700;}
 
 .proj-block{text-align:center;flex-shrink:0;}
 .proj-label{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
-.proj-box{
-  width:78px;height:78px;border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:26px;font-weight:900;color:#fff;font-family:'Oswald',sans-serif;
-  box-shadow:0 4px 16px rgba(0,0,0,.4);
-}
+.proj-box{width:78px;height:78px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#fff;font-family:'Oswald',sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.4);}
 
 .stat-section{margin-top:18px;}
-.stat-section-label{
-  font-size:10px;color:#6b7280;text-transform:uppercase;
-  letter-spacing:.12em;margin-bottom:8px;
-  padding-bottom:5px;border-bottom:1px solid #1e3a5f;
-}
+.stat-section-label{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #1e3a5f;}
 .tiles{display:flex;gap:7px;}
 .tile{flex:1;text-align:center;}
 .tile-label{font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;white-space:nowrap;}
-.tile-val{
-  display:block;border-radius:6px;
-  padding:11px 4px;font-size:22px;font-weight:900;
-  color:#fff;font-family:'Oswald',sans-serif;
-  box-shadow:0 3px 10px rgba(0,0,0,.35);
-  transition:transform .15s;
-}
+.tile-val{display:block;border-radius:6px;padding:11px 4px;font-size:22px;font-weight:900;color:#fff;font-family:'Oswald',sans-serif;box-shadow:0 3px 10px rgba(0,0,0,.35);transition:transform .15s;}
 .tile-val:hover{transform:scale(1.04);}
 
 .data-note{margin-top:14px;font-size:10px;color:#374151;line-height:1.6;}
 
 .chart-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6b7280;margin-bottom:8px;}
 .chart-wrap{height:155px;position:relative;}
-
 .history-label{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.1em;margin:16px 0 7px;}
 table{width:100%;border-collapse:collapse;font-size:11px;}
 th{padding:4px 5px;color:#4b5563;text-align:right;font-weight:600;border-bottom:1px solid #1e3a5f;font-size:10px;letter-spacing:.04em;}
@@ -132,10 +81,7 @@ td{padding:5px 5px;text-align:right;border-bottom:1px solid #0d1117;color:#cbd5e
 td:first-child{text-align:left;color:#6b7280;}
 .pct-pill{border-radius:4px;padding:2px 7px;font-size:11px;font-weight:800;color:#fff;font-family:'Oswald',sans-serif;}
 
-.card-footer{
-  background:#070d18;border-top:1px solid #1a2a3a;
-  padding:9px 20px;display:flex;justify-content:space-between;align-items:center;
-}
+.card-footer{background:#070d18;border-top:1px solid #1a2a3a;padding:9px 20px;display:flex;justify-content:space-between;align-items:center;}
 .footer-note{font-size:10px;color:#374151;}
 .footer-brand{font-size:12px;font-weight:800;color:#1e3a5f;letter-spacing:.12em;}
 </style>
@@ -152,8 +98,19 @@ td:first-child{text-align:left;color:#6b7280;}
 
 <div id="loadingMsg">⚡ Loading player data...</div>
 
-<div class="dropdown-wrap" id="dropdownWrap">
-  <select id="playerSelect"><option value="">— Select a player —</option></select>
+<div class="filters" id="filtersWrap">
+  <div class="filter-wrap">
+    <div class="filter-label">Player</div>
+    <select id="playerSelect"><option value="">— All Players —</option></select>
+  </div>
+  <div class="filter-wrap">
+    <div class="filter-label">Team</div>
+    <select id="teamSelect"><option value="">— All Teams —</option></select>
+  </div>
+  <div class="filter-wrap">
+    <div class="filter-label">Season</div>
+    <select id="seasonSelect"><option value="">— All Seasons —</option></select>
+  </div>
 </div>
 
 <div class="card" id="card">
@@ -184,9 +141,7 @@ td:first-child{text-align:left;color:#6b7280;}
           <div class="stat-section-label">Two-Way &amp; Other</div>
           <div class="tiles" id="defTiles"></div>
         </div>
-        <div class="data-note">
-          Percentile ranked among same position group per season &nbsp;·&nbsp; Data: CollegeHockeyInc.com
-        </div>
+        <div class="data-note">Percentile ranked among same position group per season &nbsp;·&nbsp; Data: CollegeHockeyInc.com</div>
       </div>
       <div class="card-right">
         <div class="chart-title">Pt/Gm Percentile Trend</div>
@@ -212,25 +167,44 @@ td:first-child{text-align:left;color:#6b7280;}
 </div>
 
 <script>
-var nameIndex={}, allNames=[], trendChart=null;
+var ALL_DATA = [];
+var nameIndex = {};
+var trendChart = null;
 
 fetch("hockey_data.json")
   .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
   .then(function(data){
+    ALL_DATA = data;
+
+    // Build name index (all seasons per player)
     data.forEach(function(row){
-      if(!nameIndex[row.Name]) nameIndex[row.Name]=[];
+      if(!nameIndex[row.Name]) nameIndex[row.Name] = [];
       nameIndex[row.Name].push(row);
     });
-    allNames = Object.keys(nameIndex).sort();
 
-    var sel = document.getElementById("playerSelect");
+    // Populate player dropdown (sorted)
+    var allNames = Object.keys(nameIndex).sort();
+    var pSel = document.getElementById("playerSelect");
     allNames.forEach(function(n){
-      var o = document.createElement("option");
-      o.value = n; o.textContent = n; sel.appendChild(o);
+      var o = document.createElement("option"); o.value=n; o.textContent=n; pSel.appendChild(o);
+    });
+
+    // Populate team dropdown (sorted)
+    var teams = [...new Set(data.map(function(r){ return r.Team; }).filter(Boolean))].sort();
+    var tSel = document.getElementById("teamSelect");
+    teams.forEach(function(t){
+      var o = document.createElement("option"); o.value=t; o.textContent=t; tSel.appendChild(o);
+    });
+
+    // Populate season dropdown (sorted)
+    var seasons = [...new Set(data.map(function(r){ return r.Season; }).filter(Boolean))].sort();
+    var sSel = document.getElementById("seasonSelect");
+    seasons.forEach(function(s){
+      var o = document.createElement("option"); o.value=s; o.textContent=s; sSel.appendChild(o);
     });
 
     document.getElementById("loadingMsg").style.display = "none";
-    document.getElementById("dropdownWrap").style.display = "block";
+    document.getElementById("filtersWrap").style.display = "flex";
     document.getElementById("emptyState").style.display = "block";
     document.getElementById("playerCount").textContent =
       allNames.length.toLocaleString() + " players · 2021-22 through 2025-26";
@@ -241,16 +215,45 @@ fetch("hockey_data.json")
     document.getElementById("loadingMsg").style.color = "#f87171";
   });
 
-document.getElementById("playerSelect").addEventListener("change", function(){
-  var name = this.value;
-  if(!name){
+// ── Filter logic ──────────────────────────────────────────────────────────
+function onFilterChange(){
+  var selPlayer = document.getElementById("playerSelect").value;
+  var selTeam   = document.getElementById("teamSelect").value;
+  var selSeason = document.getElementById("seasonSelect").value;
+
+  // If team or season changes, re-filter the player dropdown
+  if(!selPlayer){
+    rebuildPlayerDropdown(selTeam, selSeason);
+    // Hide card if no player selected
     document.getElementById("card").style.display = "none";
     document.getElementById("emptyState").style.display = "block";
     return;
   }
-  showPlayer(name);
-});
 
+  showPlayer(selPlayer, selSeason);
+}
+
+function rebuildPlayerDropdown(filterTeam, filterSeason){
+  var filtered = ALL_DATA.filter(function(r){
+    return (!filterTeam  || r.Team   === filterTeam) &&
+           (!filterSeason|| r.Season === filterSeason);
+  });
+  var names = [...new Set(filtered.map(function(r){ return r.Name; }))].sort();
+  var pSel = document.getElementById("playerSelect");
+  var current = pSel.value;
+  pSel.innerHTML = '<option value="">— All Players —</option>';
+  names.forEach(function(n){
+    var o = document.createElement("option"); o.value=n; o.textContent=n;
+    if(n===current) o.selected=true;
+    pSel.appendChild(o);
+  });
+}
+
+document.getElementById("playerSelect").addEventListener("change", onFilterChange);
+document.getElementById("teamSelect").addEventListener("change", onFilterChange);
+document.getElementById("seasonSelect").addEventListener("change", onFilterChange);
+
+// ── Helpers ───────────────────────────────────────────────────────────────
 function pctColor(v){
   if(v==null) return "#1f2937";
   if(v>=90)   return "#1565c0";
@@ -261,25 +264,27 @@ function pctColor(v){
 }
 function pctFmt(v){ return (v==null) ? "N/A" : Math.round(v)+"%"; }
 function numFmt(v,d){ return (v==null) ? "—" : Number(v).toFixed(d||0); }
-
-function tile(label, val){
-  return '<div class="tile">' +
-    '<div class="tile-label">'+label+'</div>' +
-    '<span class="tile-val" style="background:'+pctColor(val)+'">'+pctFmt(val)+'</span>' +
-    '</div>';
+function tile(label,val){
+  return '<div class="tile"><div class="tile-label">'+label+'</div>' +
+    '<span class="tile-val" style="background:'+pctColor(val)+'">'+pctFmt(val)+'</span></div>';
 }
 
-function showPlayer(name){
+// ── Show card ─────────────────────────────────────────────────────────────
+function showPlayer(name, filterSeason){
   var rows = (nameIndex[name]||[]).slice().sort(function(a,b){ return a.Season.localeCompare(b.Season); });
   if(!rows.length) return;
-  var cur = rows[rows.length-1];
+
+  // Pick the season to show: filtered season or most recent
+  var cur = filterSeason
+    ? (rows.find(function(r){ return r.Season===filterSeason; }) || rows[rows.length-1])
+    : rows[rows.length-1];
 
   document.getElementById("emptyState").style.display = "none";
   document.getElementById("card").style.display = "block";
 
   document.getElementById("bannerName").textContent = name.toUpperCase();
   document.getElementById("playerName").textContent = name.toUpperCase();
-  document.getElementById("playerSub").textContent = (cur.Team||"") + " · " + (cur.Pos_Group||"") + " · " + (cur.Season||"");
+  document.getElementById("playerSub").textContent  = (cur.Team||"") + " · " + (cur.Pos_Group||"") + " · " + (cur.Season||"");
 
   document.getElementById("metaRow").innerHTML =
     '<div class="meta-pill"><span>Pos</span><strong>'+(cur.Pos_Group||"—")+'</strong></div>' +
@@ -294,18 +299,12 @@ function showPlayer(name){
   pb.style.background = pctColor(cur.PtGm_pct);
 
   document.getElementById("offTiles").innerHTML =
-    tile("Pt/Gm",   cur.PtGm_pct) +
-    tile("Goals",   cur.G_pct) +
-    tile("Assists", cur.A_pct) +
-    tile("Shots",   cur.Shots_pct) +
-    tile("PPG",     cur.PPG_pct);
+    tile("Pt/Gm",cur.PtGm_pct)+tile("Goals",cur.G_pct)+tile("Assists",cur.A_pct)+tile("Shots",cur.Shots_pct)+tile("PPG",cur.PPG_pct);
 
   document.getElementById("defTiles").innerHTML =
-    tile("SHG",    cur.SHG_pct) +
-    tile("+/-",    cur["+/-_pct"]) +
-    tile("Blocks", cur.Blk_pct) +
-    tile("FO%",    cur.FO_pct);
+    tile("SHG",cur.SHG_pct)+tile("+/-",cur["+/-_pct"])+tile("Blocks",cur.Blk_pct)+tile("FO%",cur.FO_pct);
 
+  // Chart — show all seasons for the player
   var seasons = rows.map(function(r){ return r.Season; });
   var pcts    = rows.map(function(r){ return r.PtGm_pct; });
   var gPcts   = rows.map(function(r){ return r.G_pct; });
@@ -313,37 +312,32 @@ function showPlayer(name){
 
   var ctx = document.getElementById("trendChart").getContext("2d");
   if(trendChart) trendChart.destroy();
-  trendChart = new Chart(ctx, {
+  trendChart = new Chart(ctx,{
     type:"line",
-    data:{
-      labels: seasons,
-      datasets:[
-        { label:"Pt/Gm",  data:pcts,  borderColor:"#60a5fa", backgroundColor:"rgba(96,165,250,0.1)", borderWidth:2.5, pointBackgroundColor:"#60a5fa", pointRadius:4, tension:0.3, fill:true },
-        { label:"Goals",  data:gPcts, borderColor:"#f87171", backgroundColor:"transparent", borderWidth:1.5, pointBackgroundColor:"#f87171", pointRadius:3, tension:0.3 },
-        { label:"Assists",data:aPcts, borderColor:"#a78bfa", backgroundColor:"transparent", borderWidth:1.5, pointBackgroundColor:"#a78bfa", pointRadius:3, tension:0.3, borderDash:[5,3] }
-      ]
-    },
+    data:{labels:seasons,datasets:[
+      {label:"Pt/Gm", data:pcts, borderColor:"#60a5fa",backgroundColor:"rgba(96,165,250,0.1)",borderWidth:2.5,pointBackgroundColor:"#60a5fa",pointRadius:4,tension:0.3,fill:true},
+      {label:"Goals", data:gPcts,borderColor:"#f87171",backgroundColor:"transparent",borderWidth:1.5,pointBackgroundColor:"#f87171",pointRadius:3,tension:0.3},
+      {label:"Assists",data:aPcts,borderColor:"#a78bfa",backgroundColor:"transparent",borderWidth:1.5,pointBackgroundColor:"#a78bfa",pointRadius:3,tension:0.3,borderDash:[5,3]}
+    ]},
     options:{
-      responsive:true, maintainAspectRatio:false,
+      responsive:true,maintainAspectRatio:false,
       plugins:{
-        legend:{ display:true, position:"bottom", labels:{ color:"#6b7280", font:{size:10}, boxWidth:10, padding:10 } },
-        tooltip:{ callbacks:{ label:function(c){ return c.dataset.label+": "+Math.round(c.parsed.y)+"%"; } } }
+        legend:{display:true,position:"bottom",labels:{color:"#6b7280",font:{size:10},boxWidth:10,padding:10}},
+        tooltip:{callbacks:{label:function(c){return c.dataset.label+": "+Math.round(c.parsed.y)+"%";}}}
       },
       scales:{
-        y:{ min:0, max:100, ticks:{ color:"#4b5563", font:{size:9}, stepSize:25 }, grid:{ color:"#161d2b" } },
-        x:{ ticks:{ color:"#4b5563", font:{size:9} }, grid:{ color:"#161d2b" } }
+        y:{min:0,max:100,ticks:{color:"#4b5563",font:{size:9},stepSize:25},grid:{color:"#161d2b"}},
+        x:{ticks:{color:"#4b5563",font:{size:9}},grid:{color:"#161d2b"}}
       }
     }
   });
 
+  // History table
   document.getElementById("historyBody").innerHTML = rows.map(function(r){
-    return "<tr>" +
-      "<td>"+r.Season+"</td>" +
-      "<td>"+numFmt(r.G)+"</td>" +
-      "<td>"+numFmt(r.A)+"</td>" +
-      "<td>"+numFmt(r["Pt/Gm"],2)+"</td>" +
-      '<td><span class="pct-pill" style="background:'+pctColor(r.PtGm_pct)+'">'+pctFmt(r.PtGm_pct)+"</span></td>" +
-      "</tr>";
+    var highlight = (r.Season===cur.Season) ? "background:rgba(96,165,250,0.06);" : "";
+    return "<tr style='"+highlight+"'>" +
+      "<td>"+r.Season+"</td><td>"+numFmt(r.G)+"</td><td>"+numFmt(r.A)+"</td><td>"+numFmt(r["Pt/Gm"],2)+"</td>" +
+      '<td><span class="pct-pill" style="background:'+pctColor(r.PtGm_pct)+'">'+pctFmt(r.PtGm_pct)+"</span></td></tr>";
   }).join("");
 }
 </script>
