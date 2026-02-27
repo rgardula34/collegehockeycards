@@ -15,17 +15,10 @@ body{background:#0d1117;min-height:100vh;font-family:'Barlow Condensed',sans-ser
 .page-header .titles span{font-size:11px;color:#555;letter-spacing:.18em;text-transform:uppercase;}
 .page-header .titles h1{font-size:28px;font-weight:800;letter-spacing:.07em;color:#fff;line-height:1.1;}
 
-/* ── Filter row ── */
 .filters{width:100%;max-width:860px;display:none;gap:10px;margin-bottom:22px;flex-wrap:wrap;}
 .filter-wrap{position:relative;flex:1;min-width:180px;}
 .filter-label{font-size:9px;color:#6b7280;text-transform:uppercase;letter-spacing:.12em;margin-bottom:5px;}
-.filter-wrap select{
-  width:100%;padding:11px 40px 11px 14px;
-  background:#161d2b;border:1px solid #243044;border-radius:8px;
-  color:#e2e8f0;font-size:14px;font-family:'Barlow Condensed',sans-serif;font-weight:600;
-  letter-spacing:.03em;outline:none;cursor:pointer;
-  appearance:none;-webkit-appearance:none;transition:border-color .2s;
-}
+.filter-wrap select{width:100%;padding:11px 40px 11px 14px;background:#161d2b;border:1px solid #243044;border-radius:8px;color:#e2e8f0;font-size:14px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.03em;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;transition:border-color .2s;}
 .filter-wrap select:focus{border-color:#3b82f6;}
 .filter-wrap::after{content:"▾";position:absolute;right:13px;bottom:11px;color:#60a5fa;pointer-events:none;font-size:16px;}
 
@@ -48,7 +41,9 @@ body{background:#0d1117;min-height:100vh;font-family:'Barlow Condensed',sans-ser
 .card-right{flex:0 0 260px;border-left:1px solid #1e3a5f;padding-left:22px;}
 
 .identity{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px;}
-.avatar{width:80px;height:80px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,#1e3a5f,#2d4a6f);display:flex;align-items:center;justify-content:center;font-size:34px;border:2px solid #2a4a6f;}
+.avatar{width:80px;height:80px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,#1e3a5f,#2d4a6f);display:flex;align-items:center;justify-content:center;font-size:34px;border:2px solid #2a4a6f;overflow:hidden;}
+.avatar img{width:100%;height:100%;object-fit:contain;padding:6px;}
+.avatar .fallback{font-size:34px;}
 .name-block{flex:1;min-width:0;}
 .name-block .pname{font-size:22px;font-weight:800;font-style:italic;letter-spacing:.05em;color:#fff;text-transform:uppercase;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .name-block .psub{font-size:12px;color:#6b7280;margin-top:4px;letter-spacing:.03em;}
@@ -70,7 +65,6 @@ body{background:#0d1117;min-height:100vh;font-family:'Barlow Condensed',sans-ser
 .tile-val:hover{transform:scale(1.04);}
 
 .data-note{margin-top:14px;font-size:10px;color:#374151;line-height:1.6;}
-
 .chart-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6b7280;margin-bottom:8px;}
 .chart-wrap{height:155px;position:relative;}
 .history-label{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.1em;margin:16px 0 7px;}
@@ -91,25 +85,25 @@ td:first-child{text-align:left;color:#6b7280;}
 <div class="page-header">
   <div class="redbar"></div>
   <div class="titles">
-    <span>College Hockey Stats &nbsp;·&nbsp; 2021–22 to 2025–26</span>
+    <span>College Hockey Stats &nbsp;·&nbsp; 2021-22 to 2025-26</span>
     <h1>PLAYER CARDS</h1>
   </div>
 </div>
 
-<div id="loadingMsg">⚡ Loading player data...</div>
+<div id="loadingMsg">&#9889; Loading player data...</div>
 
 <div class="filters" id="filtersWrap">
   <div class="filter-wrap">
     <div class="filter-label">Player</div>
-    <select id="playerSelect"><option value="">— All Players —</option></select>
+    <select id="playerSelect"><option value="">&#8212; All Players &#8212;</option></select>
   </div>
   <div class="filter-wrap">
     <div class="filter-label">Team</div>
-    <select id="teamSelect"><option value="">— All Teams —</option></select>
+    <select id="teamSelect"><option value="">&#8212; All Teams &#8212;</option></select>
   </div>
   <div class="filter-wrap">
     <div class="filter-label">Season</div>
-    <select id="seasonSelect"><option value="">— All Seasons —</option></select>
+    <select id="seasonSelect"><option value="">&#8212; All Seasons &#8212;</option></select>
   </div>
 </div>
 
@@ -122,7 +116,7 @@ td:first-child{text-align:left;color:#6b7280;}
     <div class="card-body">
       <div class="card-left">
         <div class="identity">
-          <div class="avatar">🏒</div>
+          <div class="avatar" id="avatar"><span class="fallback">&#127944;</span></div>
           <div class="name-block">
             <div class="pname" id="playerName"></div>
             <div class="psub" id="playerSub"></div>
@@ -161,162 +155,205 @@ td:first-child{text-align:left;color:#6b7280;}
 </div>
 
 <div class="empty-state" id="emptyState">
-  <div class="icon">🏒</div>
+  <div class="icon">&#127944;</div>
   <div class="title">Select a player to view their card</div>
   <div class="sub" id="playerCount"></div>
 </div>
 
 <script>
-var ALL_DATA = [];
-var nameIndex = {};
-var trendChart = null;
+var LOGOS = {
+  'Air Force': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2005.png',
+  'Alaska': 'https://1000logos.net/wp-content/uploads/2021/06/Alaska-Nanooks-logo-500x281.png',
+  'Alaska-Anchorage': 'https://1000logos.net/wp-content/uploads/2019/08/Alaska-Anchorage-Seawolves-Logo-1-500x281.png',
+  'Arizona State': 'http://a.espncdn.com/i/teamlogos/ncaa/500/9.png',
+  'Army': 'http://a.espncdn.com/i/teamlogos/ncaa/500/349.png',
+  'Augustana': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2043.png',
+  'Bemidji State': 'http://a.espncdn.com/i/teamlogos/ncaa/500/132.png',
+  'Bentley': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2060.png',
+  'Boston College': 'http://a.espncdn.com/i/teamlogos/ncaa/500/103.png',
+  'Boston University': 'https://content.sportslogos.net/logos/30/619/full/boston_university_terriers_logo_primary_2015_sportslogosnet-1121.png',
+  'Bowling Green': 'http://a.espncdn.com/i/teamlogos/ncaa/500/189.png',
+  'Brown': 'http://a.espncdn.com/i/teamlogos/ncaa/500/225.png',
+  'Canisius': 'https://1000logos.net/wp-content/uploads/2022/03/Canisius-Golden-Griffins-Logo.png',
+  'Clarkson': 'https://1000logos.net/wp-content/uploads/2022/03/Clarkson-Golden-Knights-Logo.png',
+  'Colgate': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2142.png',
+  'Colorado College': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2144.png',
+  'Connecticut': 'http://a.espncdn.com/i/teamlogos/ncaa/500/41.png',
+  'Cornell': 'http://a.espncdn.com/i/teamlogos/ncaa/500/172.png',
+  'Dartmouth': 'http://a.espncdn.com/i/teamlogos/ncaa/500/159.png',
+  'Denver': 'https://content.sportslogos.net/logos/31/659/full/denver_pioneers_logo_primary_2022_sportslogosnet-9520.png',
+  'Ferris State': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2222.png',
+  'Harvard': 'http://a.espncdn.com/i/teamlogos/ncaa/500/108.png',
+  'Holy Cross': 'http://a.espncdn.com/i/teamlogos/ncaa/500/107.png',
+  'Lake Superior': 'https://1000logos.net/wp-content/uploads/2021/06/Lake-Superior-State-Lakers-logo-500x281.png',
+  'Lindenwood': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2815.png',
+  'Long Island': 'https://1000logos.net/wp-content/uploads/2022/02/LIU-Brooklyn-Blackbirds-logo.png',
+  'Maine': 'http://a.espncdn.com/i/teamlogos/ncaa/500/311.png',
+  'Mass.-Lowell': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2349.png',
+  'Massachusetts': 'http://a.espncdn.com/i/teamlogos/ncaa/500/113.png',
+  'Mercyhurst': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2385.png',
+  'Merrimack': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2771.png',
+  'Miami': 'http://a.espncdn.com/i/teamlogos/ncaa/500/193.png',
+  'Michigan': 'http://a.espncdn.com/i/teamlogos/ncaa/500/130.png',
+  'Michigan State': 'http://a.espncdn.com/i/teamlogos/ncaa/500/127.png',
+  'Michigan Tech': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2392.png',
+  'Minnesota': 'http://a.espncdn.com/i/teamlogos/ncaa/500/135.png',
+  'Minnesota State': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2364.png',
+  'Minnesota-Duluth': 'http://a.espncdn.com/i/teamlogos/ncaa/500/134.png',
+  'New Hampshire': 'http://a.espncdn.com/i/teamlogos/ncaa/500/160.png',
+  'Niagara': 'https://1000logos.net/wp-content/uploads/2021/07/Niagara-Purple-Eagles-logo.png',
+  'North Dakota': 'http://a.espncdn.com/i/teamlogos/ncaa/500/155.png',
+  'Northeastern': 'https://1000logos.net/wp-content/uploads/2022/02/Northeastern-Huskies-logo.png',
+  'Northern Michigan': 'http://a.espncdn.com/i/teamlogos/ncaa/500/128.png',
+  'Notre Dame': 'http://a.espncdn.com/i/teamlogos/ncaa/500/87.png',
+  'Ohio State': 'http://a.espncdn.com/i/teamlogos/ncaa/500/194.png',
+  'Omaha': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2437.png',
+  'Penn State': 'http://a.espncdn.com/i/teamlogos/ncaa/500/213.png',
+  'Princeton': 'http://a.espncdn.com/i/teamlogos/ncaa/500/163.png',
+  'Providence': 'https://content.sportslogos.net/logos/33/808/full/providence_friars_logo_primary_2017_sportslogosnet-2487.png',
+  'Quinnipiac': 'https://content.sportslogos.net/logos/33/810/full/quinnipiac_bobcats_logo_primary_20176082.png',
+  'RIT': 'http://a.espncdn.com/i/teamlogos/ncaa/500/184.png',
+  'RPI': 'https://1000logos.net/wp-content/uploads/2021/07/RPI-Engineers-logo-500x281.png',
+  'Robert Morris': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2523.png',
+  'Sacred Heart': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2529.png',
+  'St. Cloud State': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2594.png',
+  'St. Lawrence': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2779.png',
+  'St. Thomas': 'https://cdn.learfield.com/wp-content/uploads/2021/09/St-Thomas-800.jpg',
+  'Stonehill': 'http://a.espncdn.com/i/teamlogos/ncaa/500/284.png',
+  'Union': 'https://unionathletics.com/services/download_file.ashx?file_location=https://static.unionathletics.com/custompages/Logos/Block%20U.png',
+  'Vermont': 'https://1000logos.net/wp-content/uploads/2021/07/Vermont-Catamounts-logo-500x281.png',
+  'Western Michigan': 'http://a.espncdn.com/i/teamlogos/ncaa/500/2711.png',
+  'Wisconsin': 'http://a.espncdn.com/i/teamlogos/ncaa/500/275.png',
+  'Yale': 'http://a.espncdn.com/i/teamlogos/ncaa/500/43.png'
+};
+
+var ALL_DATA=[], nameIndex={}, trendChart=null;
 
 fetch("hockey_data.json")
-  .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+  .then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
   .then(function(data){
-    ALL_DATA = data;
-
-    // Build name index (all seasons per player)
+    ALL_DATA=data;
     data.forEach(function(row){
-      if(!nameIndex[row.Name]) nameIndex[row.Name] = [];
+      if(!nameIndex[row.Name])nameIndex[row.Name]=[];
       nameIndex[row.Name].push(row);
     });
+    var allNames=Object.keys(nameIndex).sort();
+    var pSel=document.getElementById("playerSelect");
+    allNames.forEach(function(n){var o=document.createElement("option");o.value=n;o.textContent=n;pSel.appendChild(o);});
 
-    // Populate player dropdown (sorted)
-    var allNames = Object.keys(nameIndex).sort();
-    var pSel = document.getElementById("playerSelect");
-    allNames.forEach(function(n){
-      var o = document.createElement("option"); o.value=n; o.textContent=n; pSel.appendChild(o);
-    });
+    var teams=[...new Set(data.map(function(r){return r.Team;}).filter(Boolean))].sort();
+    var tSel=document.getElementById("teamSelect");
+    teams.forEach(function(t){var o=document.createElement("option");o.value=t;o.textContent=t;tSel.appendChild(o);});
 
-    // Populate team dropdown (sorted)
-    var teams = [...new Set(data.map(function(r){ return r.Team; }).filter(Boolean))].sort();
-    var tSel = document.getElementById("teamSelect");
-    teams.forEach(function(t){
-      var o = document.createElement("option"); o.value=t; o.textContent=t; tSel.appendChild(o);
-    });
+    var seasons=[...new Set(data.map(function(r){return r.Season;}).filter(Boolean))].sort();
+    var sSel=document.getElementById("seasonSelect");
+    seasons.forEach(function(s){var o=document.createElement("option");o.value=s;o.textContent=s;sSel.appendChild(o);});
 
-    // Populate season dropdown (sorted)
-    var seasons = [...new Set(data.map(function(r){ return r.Season; }).filter(Boolean))].sort();
-    var sSel = document.getElementById("seasonSelect");
-    seasons.forEach(function(s){
-      var o = document.createElement("option"); o.value=s; o.textContent=s; sSel.appendChild(o);
-    });
-
-    document.getElementById("loadingMsg").style.display = "none";
-    document.getElementById("filtersWrap").style.display = "flex";
-    document.getElementById("emptyState").style.display = "block";
-    document.getElementById("playerCount").textContent =
-      allNames.length.toLocaleString() + " players · 2021-22 through 2025-26";
+    document.getElementById("loadingMsg").style.display="none";
+    document.getElementById("filtersWrap").style.display="flex";
+    document.getElementById("emptyState").style.display="block";
+    document.getElementById("playerCount").textContent=allNames.length.toLocaleString()+" players · 2021-22 through 2025-26";
   })
   .catch(function(err){
-    document.getElementById("loadingMsg").textContent =
-      "⚠️ Could not load hockey_data.json — make sure it is in the same folder. (" + err.message + ")";
-    document.getElementById("loadingMsg").style.color = "#f87171";
+    document.getElementById("loadingMsg").textContent="Could not load hockey_data.json — make sure it is in the same folder. ("+err.message+")";
+    document.getElementById("loadingMsg").style.color="#f87171";
   });
 
-// ── Filter logic ──────────────────────────────────────────────────────────
 function onFilterChange(){
-  var selPlayer = document.getElementById("playerSelect").value;
-  var selTeam   = document.getElementById("teamSelect").value;
-  var selSeason = document.getElementById("seasonSelect").value;
-
-  // If team or season changes, re-filter the player dropdown
+  var selPlayer=document.getElementById("playerSelect").value;
+  var selTeam=document.getElementById("teamSelect").value;
+  var selSeason=document.getElementById("seasonSelect").value;
   if(!selPlayer){
-    rebuildPlayerDropdown(selTeam, selSeason);
-    // Hide card if no player selected
-    document.getElementById("card").style.display = "none";
-    document.getElementById("emptyState").style.display = "block";
+    rebuildPlayerDropdown(selTeam,selSeason);
+    document.getElementById("card").style.display="none";
+    document.getElementById("emptyState").style.display="block";
     return;
   }
-
-  showPlayer(selPlayer, selSeason);
+  showPlayer(selPlayer,selSeason);
 }
 
-function rebuildPlayerDropdown(filterTeam, filterSeason){
-  var filtered = ALL_DATA.filter(function(r){
-    return (!filterTeam  || r.Team   === filterTeam) &&
-           (!filterSeason|| r.Season === filterSeason);
+function rebuildPlayerDropdown(filterTeam,filterSeason){
+  var filtered=ALL_DATA.filter(function(r){
+    return(!filterTeam||r.Team===filterTeam)&&(!filterSeason||r.Season===filterSeason);
   });
-  var names = [...new Set(filtered.map(function(r){ return r.Name; }))].sort();
-  var pSel = document.getElementById("playerSelect");
-  var current = pSel.value;
-  pSel.innerHTML = '<option value="">— All Players —</option>';
-  names.forEach(function(n){
-    var o = document.createElement("option"); o.value=n; o.textContent=n;
-    if(n===current) o.selected=true;
-    pSel.appendChild(o);
-  });
+  var names=[...new Set(filtered.map(function(r){return r.Name;}))].sort();
+  var pSel=document.getElementById("playerSelect");
+  var current=pSel.value;
+  pSel.innerHTML="<option value=''>— All Players —</option>";
+  names.forEach(function(n){var o=document.createElement("option");o.value=n;o.textContent=n;if(n===current)o.selected=true;pSel.appendChild(o);});
 }
 
-document.getElementById("playerSelect").addEventListener("change", onFilterChange);
-document.getElementById("teamSelect").addEventListener("change", onFilterChange);
-document.getElementById("seasonSelect").addEventListener("change", onFilterChange);
+document.getElementById("playerSelect").addEventListener("change",onFilterChange);
+document.getElementById("teamSelect").addEventListener("change",onFilterChange);
+document.getElementById("seasonSelect").addEventListener("change",onFilterChange);
 
-// ── Helpers ───────────────────────────────────────────────────────────────
 function pctColor(v){
-  if(v==null) return "#1f2937";
-  if(v>=90)   return "#1565c0";
-  if(v>=75)   return "#1976d2";
-  if(v>=50)   return "#7b1fa2";
-  if(v>=25)   return "#7f1d1d";
-  return "#1f2937";
+  if(v==null)return"#1f2937";
+  if(v>=90)return"#1565c0";
+  if(v>=75)return"#1976d2";
+  if(v>=50)return"#7b1fa2";
+  if(v>=25)return"#7f1d1d";
+  return"#1f2937";
 }
-function pctFmt(v){ return (v==null) ? "N/A" : Math.round(v)+"%"; }
-function numFmt(v,d){ return (v==null) ? "—" : Number(v).toFixed(d||0); }
+function pctFmt(v){return(v==null)?"N/A":Math.round(v)+"%";}
+function numFmt(v,d){return(v==null)?"—":Number(v).toFixed(d||0);}
 function tile(label,val){
-  return '<div class="tile"><div class="tile-label">'+label+'</div>' +
-    '<span class="tile-val" style="background:'+pctColor(val)+'">'+pctFmt(val)+'</span></div>';
+  return'<div class="tile"><div class="tile-label">'+label+'</div><span class="tile-val" style="background:'+pctColor(val)+'">'+pctFmt(val)+'</span></div>';
 }
 
-// ── Show card ─────────────────────────────────────────────────────────────
-function showPlayer(name, filterSeason){
-  var rows = (nameIndex[name]||[]).slice().sort(function(a,b){ return a.Season.localeCompare(b.Season); });
-  if(!rows.length) return;
+function setAvatar(team){
+  var el=document.getElementById("avatar");
+  var url=LOGOS[team];
+  if(url){
+    el.innerHTML='<img src="'+url+'" alt="'+team+'" onerror="this.parentElement.innerHTML=''&#10;&#13;&#9;&#9;&#9;'<span class=\\'fallback\\'>&#127944;</span>'">';
+  } else {
+    el.innerHTML='<span class="fallback">&#127944;</span>';
+  }
+}
 
-  // Pick the season to show: filtered season or most recent
-  var cur = filterSeason
-    ? (rows.find(function(r){ return r.Season===filterSeason; }) || rows[rows.length-1])
-    : rows[rows.length-1];
+function showPlayer(name,filterSeason){
+  var rows=(nameIndex[name]||[]).slice().sort(function(a,b){return a.Season.localeCompare(b.Season);});
+  if(!rows.length)return;
+  var cur=filterSeason?(rows.find(function(r){return r.Season===filterSeason;})||rows[rows.length-1]):rows[rows.length-1];
 
-  document.getElementById("emptyState").style.display = "none";
-  document.getElementById("card").style.display = "block";
+  document.getElementById("emptyState").style.display="none";
+  document.getElementById("card").style.display="block";
 
-  document.getElementById("bannerName").textContent = name.toUpperCase();
-  document.getElementById("playerName").textContent = name.toUpperCase();
-  document.getElementById("playerSub").textContent  = (cur.Team||"") + " · " + (cur.Pos_Group||"") + " · " + (cur.Season||"");
+  document.getElementById("bannerName").textContent=name.toUpperCase();
+  document.getElementById("playerName").textContent=name.toUpperCase();
+  document.getElementById("playerSub").textContent=(cur.Team||"")+" · "+(cur.Pos_Group||"")+" · "+(cur.Season||"");
 
-  document.getElementById("metaRow").innerHTML =
-    '<div class="meta-pill"><span>Pos</span><strong>'+(cur.Pos_Group||"—")+'</strong></div>' +
-    '<div class="meta-pill"><span>Year</span><strong>'+(cur.Yr||"—")+'</strong></div>' +
-    '<div class="meta-pill"><span>GP</span><strong>'+numFmt(cur.GP)+'</strong></div>' +
-    '<div class="meta-pill"><span>G</span><strong>'+numFmt(cur.G)+'</strong></div>' +
-    '<div class="meta-pill"><span>A</span><strong>'+numFmt(cur.A)+'</strong></div>' +
+  setAvatar(cur.Team);
+
+  document.getElementById("metaRow").innerHTML=
+    '<div class="meta-pill"><span>Pos</span><strong>'+(cur.Pos_Group||"—")+'</strong></div>'+
+    '<div class="meta-pill"><span>Year</span><strong>'+(cur.Yr||"—")+'</strong></div>'+
+    '<div class="meta-pill"><span>GP</span><strong>'+numFmt(cur.GP)+'</strong></div>'+
+    '<div class="meta-pill"><span>G</span><strong>'+numFmt(cur.G)+'</strong></div>'+
+    '<div class="meta-pill"><span>A</span><strong>'+numFmt(cur.A)+'</strong></div>'+
     '<div class="meta-pill"><span>Pt/Gm</span><strong>'+numFmt(cur["Pt/Gm"],2)+'</strong></div>';
 
-  var pb = document.getElementById("projBox");
-  pb.textContent = pctFmt(cur.PtGm_pct);
-  pb.style.background = pctColor(cur.PtGm_pct);
+  var pb=document.getElementById("projBox");
+  pb.textContent=pctFmt(cur.PtGm_pct);
+  pb.style.background=pctColor(cur.PtGm_pct);
 
-  document.getElementById("offTiles").innerHTML =
+  document.getElementById("offTiles").innerHTML=
     tile("Pt/Gm",cur.PtGm_pct)+tile("Goals",cur.G_pct)+tile("Assists",cur.A_pct)+tile("Shots",cur.Shots_pct)+tile("PPG",cur.PPG_pct);
-
-  document.getElementById("defTiles").innerHTML =
+  document.getElementById("defTiles").innerHTML=
     tile("SHG",cur.SHG_pct)+tile("+/-",cur["+/-_pct"])+tile("Blocks",cur.Blk_pct)+tile("FO%",cur.FO_pct);
 
-  // Chart — show all seasons for the player
-  var seasons = rows.map(function(r){ return r.Season; });
-  var pcts    = rows.map(function(r){ return r.PtGm_pct; });
-  var gPcts   = rows.map(function(r){ return r.G_pct; });
-  var aPcts   = rows.map(function(r){ return r.A_pct; });
+  var seasons=rows.map(function(r){return r.Season;});
+  var pcts=rows.map(function(r){return r.PtGm_pct;});
+  var gPcts=rows.map(function(r){return r.G_pct;});
+  var aPcts=rows.map(function(r){return r.A_pct;});
 
-  var ctx = document.getElementById("trendChart").getContext("2d");
-  if(trendChart) trendChart.destroy();
-  trendChart = new Chart(ctx,{
+  var ctx=document.getElementById("trendChart").getContext("2d");
+  if(trendChart)trendChart.destroy();
+  trendChart=new Chart(ctx,{
     type:"line",
     data:{labels:seasons,datasets:[
-      {label:"Pt/Gm", data:pcts, borderColor:"#60a5fa",backgroundColor:"rgba(96,165,250,0.1)",borderWidth:2.5,pointBackgroundColor:"#60a5fa",pointRadius:4,tension:0.3,fill:true},
-      {label:"Goals", data:gPcts,borderColor:"#f87171",backgroundColor:"transparent",borderWidth:1.5,pointBackgroundColor:"#f87171",pointRadius:3,tension:0.3},
+      {label:"Pt/Gm",data:pcts,borderColor:"#60a5fa",backgroundColor:"rgba(96,165,250,0.1)",borderWidth:2.5,pointBackgroundColor:"#60a5fa",pointRadius:4,tension:0.3,fill:true},
+      {label:"Goals",data:gPcts,borderColor:"#f87171",backgroundColor:"transparent",borderWidth:1.5,pointBackgroundColor:"#f87171",pointRadius:3,tension:0.3},
       {label:"Assists",data:aPcts,borderColor:"#a78bfa",backgroundColor:"transparent",borderWidth:1.5,pointBackgroundColor:"#a78bfa",pointRadius:3,tension:0.3,borderDash:[5,3]}
     ]},
     options:{
@@ -332,12 +369,9 @@ function showPlayer(name, filterSeason){
     }
   });
 
-  // History table
-  document.getElementById("historyBody").innerHTML = rows.map(function(r){
-    var highlight = (r.Season===cur.Season) ? "background:rgba(96,165,250,0.06);" : "";
-    return "<tr style='"+highlight+"'>" +
-      "<td>"+r.Season+"</td><td>"+numFmt(r.G)+"</td><td>"+numFmt(r.A)+"</td><td>"+numFmt(r["Pt/Gm"],2)+"</td>" +
-      '<td><span class="pct-pill" style="background:'+pctColor(r.PtGm_pct)+'">'+pctFmt(r.PtGm_pct)+"</span></td></tr>";
+  document.getElementById("historyBody").innerHTML=rows.map(function(r){
+    var hi=(r.Season===cur.Season)?"background:rgba(96,165,250,0.06);":"";
+    return"<tr style='"+hi+"'><td>"+r.Season+"</td><td>"+numFmt(r.G)+"</td><td>"+numFmt(r.A)+"</td><td>"+numFmt(r["Pt/Gm"],2)+"</td><td><span class='pct-pill' style='background:"+pctColor(r.PtGm_pct)+"''>"+pctFmt(r.PtGm_pct)+"</span></td></tr>";
   }).join("");
 }
 </script>
