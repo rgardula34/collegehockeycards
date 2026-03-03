@@ -20,10 +20,17 @@ body{background:#0d1117;min-height:100vh;font-family:'Barlow Condensed',sans-ser
 .filter-wrap select:focus{border-color:#3b82f6;}
 .filter-wrap::after{content:"▾";position:absolute;right:13px;bottom:11px;color:#60a5fa;pointer-events:none;font-size:16px;}
 #loadingMsg{width:100%;max-width:860px;text-align:center;padding:16px;background:#161d2b;border-radius:8px;border:1px solid #243044;font-size:13px;color:#60a5fa;margin-bottom:20px;}
-.empty-state{width:100%;max-width:860px;text-align:center;padding:64px 20px;color:#2d3748;display:none;}
-.empty-state .icon{font-size:56px;margin-bottom:14px;}
+.empty-state{width:100%;max-width:860px;text-align:center;padding:64px 20px;display:none;}
+.empty-state .icon{margin-bottom:16px;}
 .empty-state .title{font-size:20px;font-weight:700;color:#374151;}
 .empty-state .sub{font-size:13px;margin-top:8px;color:#4b5563;}
+.no-match{width:100%;max-width:860px;display:none;padding:28px 24px;background:#161d2b;border-radius:12px;border:1px solid #7f1d1d;text-align:center;}
+.no-match .nm-icon{font-size:36px;margin-bottom:10px;}
+.no-match .nm-title{font-size:17px;font-weight:700;color:#f87171;margin-bottom:6px;}
+.no-match .nm-msg{font-size:13px;color:#9ca3af;line-height:1.6;}
+.no-match .nm-seasons{margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.nm-pill{background:#1a2540;border:1px solid #243044;border-radius:5px;padding:5px 12px;font-size:12px;color:#60a5fa;cursor:pointer;transition:background .15s;}
+.nm-pill:hover{background:#243044;}
 .card{width:100%;max-width:860px;display:none;}
 .card-wrap{background:linear-gradient(160deg,#111827 0%,#0d1b2a 100%);border-radius:12px;border:1px solid #1e3a5f;overflow:hidden;box-shadow:0 12px 50px rgba(0,0,0,.7);}
 .card-banner{background:linear-gradient(90deg,#192a45 0%,#0f1f38 100%);border-bottom:3px solid #c8102e;padding:11px 20px;display:flex;align-items:center;gap:10px;}
@@ -33,8 +40,9 @@ body{background:#0d1117;min-height:100vh;font-family:'Barlow Condensed',sans-ser
 .card-left{flex:1 1 0;min-width:0;}
 .card-right{flex:0 0 260px;border-left:1px solid #1e3a5f;padding-left:22px;}
 .identity{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px;}
-.avatar{width:80px;height:80px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,#1e3a5f,#2d4a6f);display:flex;align-items:center;justify-content:center;font-size:34px;border:2px solid #2a4a6f;overflow:hidden;}
+.avatar{width:80px;height:80px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,#1e3a5f,#2d4a6f);display:flex;align-items:center;justify-content:center;border:2px solid #2a4a6f;overflow:hidden;}
 .avatar img{width:100%;height:100%;object-fit:contain;padding:6px;}
+.avatar svg{width:48px;height:48px;opacity:0.6;}
 .name-block{flex:1;min-width:0;}
 .name-block .pname{font-size:22px;font-weight:800;font-style:italic;letter-spacing:.05em;color:#fff;text-transform:uppercase;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .name-block .psub{font-size:12px;color:#6b7280;margin-top:4px;letter-spacing:.03em;}
@@ -81,16 +89,16 @@ td:first-child{text-align:left;color:#6b7280;}
 
 <div class="filters" id="filtersWrap">
   <div class="filter-wrap">
-    <div class="filter-label">Player</div>
-    <select id="playerSelect"><option value="">&#8212; All Players &#8212;</option></select>
+    <div class="filter-label">Season</div>
+    <select id="seasonSelect"><option value="">&#8212; All Seasons &#8212;</option></select>
   </div>
   <div class="filter-wrap">
     <div class="filter-label">Team</div>
     <select id="teamSelect"><option value="">&#8212; All Teams &#8212;</option></select>
   </div>
   <div class="filter-wrap">
-    <div class="filter-label">Season</div>
-    <select id="seasonSelect"><option value="">&#8212; All Seasons &#8212;</option></select>
+    <div class="filter-label">Player</div>
+    <select id="playerSelect"><option value="">&#8212; All Players &#8212;</option></select>
   </div>
 </div>
 
@@ -103,7 +111,12 @@ td:first-child{text-align:left;color:#6b7280;}
     <div class="card-body">
       <div class="card-left">
         <div class="identity">
-          <div class="avatar" id="avatar">&#127944;</div>
+          <div class="avatar" id="avatar">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="8" r="4" fill="#4b5563"/>
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" fill="#4b5563"/>
+            </svg>
+          </div>
           <div class="name-block">
             <div class="pname" id="playerName"></div>
             <div class="psub" id="playerSub"></div>
@@ -141,8 +154,20 @@ td:first-child{text-align:left;color:#6b7280;}
   </div>
 </div>
 
+<div class="no-match" id="noMatch">
+  <div class="nm-icon">&#9888;</div>
+  <div class="nm-title" id="nmTitle"></div>
+  <div class="nm-msg" id="nmMsg"></div>
+  <div class="nm-seasons" id="nmSeasons"></div>
+</div>
+
 <div class="empty-state" id="emptyState">
-  <div class="icon">&#127944;</div>
+  <div class="icon">
+    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="22" r="12" fill="#1e3a5f"/>
+      <path d="M8 56c0-13 10.7-22 24-22s24 9 24 22" fill="#1e3a5f"/>
+    </svg>
+  </div>
   <div class="title">Select a player to view their card</div>
   <div class="sub" id="playerCount"></div>
 </div>
@@ -223,40 +248,27 @@ fetch("hockey_data.json")
       if (!nameIndex[row.Name]) nameIndex[row.Name] = [];
       nameIndex[row.Name].push(row);
     });
-    var allNames = Object.keys(nameIndex).sort();
-    var pSel = document.getElementById("playerSelect");
-    allNames.forEach(function(n) { var o = document.createElement("option"); o.value = n; o.textContent = n; pSel.appendChild(o); });
-
-    var teams = Array.from(new Set(data.map(function(r) { return r.Team; }).filter(Boolean))).sort();
-    var tSel = document.getElementById("teamSelect");
-    teams.forEach(function(t) { var o = document.createElement("option"); o.value = t; o.textContent = t; tSel.appendChild(o); });
 
     var seasons = Array.from(new Set(data.map(function(r) { return r.Season; }).filter(Boolean))).sort();
     var sSel = document.getElementById("seasonSelect");
     seasons.forEach(function(s) { var o = document.createElement("option"); o.value = s; o.textContent = s; sSel.appendChild(o); });
 
+    var teams = Array.from(new Set(data.map(function(r) { return r.Team; }).filter(Boolean))).sort();
+    var tSel = document.getElementById("teamSelect");
+    teams.forEach(function(t) { var o = document.createElement("option"); o.value = t; o.textContent = t; tSel.appendChild(o); });
+
+    rebuildPlayerDropdown("", "");
+
     document.getElementById("loadingMsg").style.display = "none";
     document.getElementById("filtersWrap").style.display = "flex";
     document.getElementById("emptyState").style.display = "block";
-    document.getElementById("playerCount").textContent = allNames.length.toLocaleString() + " players · 2021-22 through 2025-26";
+    document.getElementById("playerCount").textContent =
+      Object.keys(nameIndex).length.toLocaleString() + " players · 2021-22 through 2025-26";
   })
   .catch(function(err) {
     document.getElementById("loadingMsg").textContent = "Could not load hockey_data.json — make sure it is in the same folder. (" + err.message + ")";
     document.getElementById("loadingMsg").style.color = "#f87171";
   });
-
-function onFilterChange() {
-  var selPlayer = document.getElementById("playerSelect").value;
-  var selTeam   = document.getElementById("teamSelect").value;
-  var selSeason = document.getElementById("seasonSelect").value;
-  if (!selPlayer) {
-    rebuildPlayerDropdown(selTeam, selSeason);
-    document.getElementById("card").style.display = "none";
-    document.getElementById("emptyState").style.display = "block";
-    return;
-  }
-  showPlayer(selPlayer, selSeason);
-}
 
 function rebuildPlayerDropdown(filterTeam, filterSeason) {
   var filtered = ALL_DATA.filter(function(r) {
@@ -265,14 +277,123 @@ function rebuildPlayerDropdown(filterTeam, filterSeason) {
   var names = Array.from(new Set(filtered.map(function(r) { return r.Name; }))).sort();
   var pSel = document.getElementById("playerSelect");
   var current = pSel.value;
-  pSel.innerHTML = "<option value=''>— All Players —</option>";
-  names.forEach(function(n) { var o = document.createElement("option"); o.value = n; o.textContent = n; if (n === current) o.selected = true; pSel.appendChild(o); });
+  pSel.innerHTML = "<option value=''>&#8212; All Players &#8212;</option>";
+  names.forEach(function(n) {
+    var o = document.createElement("option"); o.value = n; o.textContent = n;
+    if (n === current) o.selected = true;
+    pSel.appendChild(o);
+  });
 }
 
-document.getElementById("playerSelect").addEventListener("change", onFilterChange);
-document.getElementById("teamSelect").addEventListener("change", onFilterChange);
-document.getElementById("seasonSelect").addEventListener("change", onFilterChange);
+function rebuildTeamDropdown(filterSeason) {
+  var filtered = ALL_DATA.filter(function(r) {
+    return !filterSeason || r.Season === filterSeason;
+  });
+  var teams = Array.from(new Set(filtered.map(function(r) { return r.Team; }).filter(Boolean))).sort();
+  var tSel = document.getElementById("teamSelect");
+  var current = tSel.value;
+  tSel.innerHTML = "<option value=''>&#8212; All Teams &#8212;</option>";
+  teams.forEach(function(t) {
+    var o = document.createElement("option"); o.value = t; o.textContent = t;
+    if (t === current) o.selected = true;
+    tSel.appendChild(o);
+  });
+}
 
+document.getElementById("seasonSelect").addEventListener("change", function() {
+  var selSeason = this.value;
+  var selTeam   = document.getElementById("teamSelect").value;
+  var selPlayer = document.getElementById("playerSelect").value;
+
+  rebuildTeamDropdown(selSeason);
+  rebuildPlayerDropdown(document.getElementById("teamSelect").value, selSeason);
+
+  if (selPlayer) {
+    handlePlayerWithFilters(selPlayer, document.getElementById("teamSelect").value, selSeason);
+  } else {
+    hideAll();
+  }
+});
+
+document.getElementById("teamSelect").addEventListener("change", function() {
+  var selTeam   = this.value;
+  var selSeason = document.getElementById("seasonSelect").value;
+  var selPlayer = document.getElementById("playerSelect").value;
+
+  rebuildPlayerDropdown(selTeam, selSeason);
+
+  if (selPlayer) {
+    handlePlayerWithFilters(selPlayer, selTeam, selSeason);
+  } else {
+    hideAll();
+  }
+});
+
+document.getElementById("playerSelect").addEventListener("change", function() {
+  var selPlayer = this.value;
+  var selTeam   = document.getElementById("teamSelect").value;
+  var selSeason = document.getElementById("seasonSelect").value;
+
+  if (!selPlayer) { hideAll(); return; }
+  handlePlayerWithFilters(selPlayer, selTeam, selSeason);
+});
+
+function hideAll() {
+  document.getElementById("card").style.display     = "none";
+  document.getElementById("noMatch").style.display  = "none";
+  document.getElementById("emptyState").style.display = "block";
+}
+
+function handlePlayerWithFilters(name, filterTeam, filterSeason) {
+  var allRows = (nameIndex[name] || []).slice().sort(function(a, b) { return a.Season.localeCompare(b.Season); });
+  if (!allRows.length) { hideAll(); return; }
+
+  // Find rows that match ALL active filters
+  var matchingRows = allRows.filter(function(r) {
+    return (!filterTeam   || r.Team   === filterTeam) &&
+           (!filterSeason || r.Season === filterSeason);
+  });
+
+  if (matchingRows.length === 0) {
+    // Show no-match message
+    document.getElementById("card").style.display       = "none";
+    document.getElementById("emptyState").style.display = "none";
+    document.getElementById("noMatch").style.display    = "block";
+
+    var filterDesc = [];
+    if (filterSeason) filterDesc.push(filterSeason);
+    if (filterTeam)   filterDesc.push(filterTeam);
+    var filterStr = filterDesc.length ? filterDesc.join(" / ") : "these filters";
+
+    document.getElementById("nmTitle").textContent = name + " — No data found";
+    document.getElementById("nmMsg").textContent   =
+      name + " does not have any recorded stats matching " + filterStr + ". " +
+      "They may not have played that season, or played for a different team.";
+
+    // Show available seasons as clickable pills
+    var pillsHtml = "<span style='font-size:11px;color:#6b7280;margin-right:6px;'>Available seasons:</span>";
+    allRows.forEach(function(r) {
+      pillsHtml += "<span class='nm-pill' onclick='jumpToSeason(\"" + name + "\",\"" + r.Season + "\",\"" + r.Team + "\")'>" +
+        r.Season + " &nbsp;(" + r.Team + ")</span>";
+    });
+    document.getElementById("nmSeasons").innerHTML = pillsHtml;
+    return;
+  }
+
+  // Show card with best matching row
+  var cur = matchingRows[matchingRows.length - 1];
+  showCard(name, allRows, cur);
+}
+
+function jumpToSeason(name, season, team) {
+  document.getElementById("seasonSelect").value = season;
+  document.getElementById("teamSelect").value   = team;
+  rebuildPlayerDropdown(team, season);
+  document.getElementById("playerSelect").value = name;
+  handlePlayerWithFilters(name, team, season);
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────
 function pctColor(v) {
   if (v == null) return "#1f2937";
   if (v >= 90)   return "#1565c0";
@@ -281,58 +402,60 @@ function pctColor(v) {
   if (v >= 25)   return "#7f1d1d";
   return "#1f2937";
 }
-function pctFmt(v)  { return (v == null) ? "N/A" : Math.round(v) + "%"; }
-function numFmt(v,d){ return (v == null) ? "—"   : Number(v).toFixed(d || 0); }
+function pctFmt(v)   { return (v == null) ? "N/A" : Math.round(v) + "%"; }
+function numFmt(v,d) { return (v == null) ? "—"   : Number(v).toFixed(d || 0); }
 function tile(label, val) {
-  return '<div class="tile"><div class="tile-label">' + label + '</div><span class="tile-val" style="background:' + pctColor(val) + '">' + pctFmt(val) + '</span></div>';
+  return '<div class="tile"><div class="tile-label">' + label +
+    '</div><span class="tile-val" style="background:' + pctColor(val) + '">' + pctFmt(val) + '</span></div>';
 }
+
+var SVG_FALLBACK = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="8" r="4" fill="#4b5563"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" fill="#4b5563"/></svg>';
 
 function setAvatar(team) {
   var el  = document.getElementById("avatar");
   var url = LOGOS[team];
   if (url) {
-    el.innerHTML = '<img src="' + url + '" alt="' + team + '" onerror="this.parentElement.innerHTML=\'&#127944;\'">';
+    el.innerHTML = '<img src="' + url + '" alt="' + team + '" onerror="this.parentElement.innerHTML=\'' + SVG_FALLBACK.replace(/'/g, "\\'") + '\'">';
   } else {
-    el.innerHTML = '&#127944;';
+    el.innerHTML = SVG_FALLBACK;
   }
 }
 
-function showPlayer(name, filterSeason) {
-  var rows = (nameIndex[name] || []).slice().sort(function(a, b) { return a.Season.localeCompare(b.Season); });
-  if (!rows.length) return;
-  var cur = filterSeason
-    ? (rows.find(function(r) { return r.Season === filterSeason; }) || rows[rows.length - 1])
-    : rows[rows.length - 1];
-
+function showCard(name, allRows, cur) {
   document.getElementById("emptyState").style.display = "none";
+  document.getElementById("noMatch").style.display    = "none";
   document.getElementById("card").style.display       = "block";
-  document.getElementById("bannerName").textContent   = name.toUpperCase();
-  document.getElementById("playerName").textContent   = name.toUpperCase();
-  document.getElementById("playerSub").textContent    = (cur.Team || "") + " · " + (cur.Pos_Group || "") + " · " + (cur.Season || "");
+
+  document.getElementById("bannerName").textContent = name.toUpperCase();
+  document.getElementById("playerName").textContent = name.toUpperCase();
+  document.getElementById("playerSub").textContent  =
+    (cur.Team || "") + " · " + (cur.Pos_Group || "") + " · " + (cur.Season || "");
 
   setAvatar(cur.Team);
 
   document.getElementById("metaRow").innerHTML =
-    '<div class="meta-pill"><span>Pos</span><strong>'    + (cur.Pos_Group || "—") + '</strong></div>' +
-    '<div class="meta-pill"><span>Year</span><strong>'   + (cur.Yr || "—")        + '</strong></div>' +
-    '<div class="meta-pill"><span>GP</span><strong>'     + numFmt(cur.GP)          + '</strong></div>' +
-    '<div class="meta-pill"><span>G</span><strong>'      + numFmt(cur.G)           + '</strong></div>' +
-    '<div class="meta-pill"><span>A</span><strong>'      + numFmt(cur.A)           + '</strong></div>' +
-    '<div class="meta-pill"><span>Pt/Gm</span><strong>'  + numFmt(cur["Pt/Gm"], 2) + '</strong></div>';
+    '<div class="meta-pill"><span>Pos</span><strong>'   + (cur.Pos_Group || "—") + '</strong></div>' +
+    '<div class="meta-pill"><span>Year</span><strong>'  + (cur.Yr || "—")        + '</strong></div>' +
+    '<div class="meta-pill"><span>GP</span><strong>'    + numFmt(cur.GP)          + '</strong></div>' +
+    '<div class="meta-pill"><span>G</span><strong>'     + numFmt(cur.G)           + '</strong></div>' +
+    '<div class="meta-pill"><span>A</span><strong>'     + numFmt(cur.A)           + '</strong></div>' +
+    '<div class="meta-pill"><span>Pt/Gm</span><strong>' + numFmt(cur["Pt/Gm"], 2) + '</strong></div>';
 
   var pb = document.getElementById("projBox");
-  pb.textContent       = pctFmt(cur.PtGm_pct);
-  pb.style.background  = pctColor(cur.PtGm_pct);
+  pb.textContent      = pctFmt(cur.PtGm_pct);
+  pb.style.background = pctColor(cur.PtGm_pct);
 
   document.getElementById("offTiles").innerHTML =
-    tile("Pt/Gm", cur.PtGm_pct) + tile("Goals", cur.G_pct) + tile("Assists", cur.A_pct) + tile("Shots", cur.Shots_pct) + tile("PPG", cur.PPG_pct);
+    tile("Pt/Gm", cur.PtGm_pct) + tile("Goals", cur.G_pct) + tile("Assists", cur.A_pct) +
+    tile("Shots", cur.Shots_pct) + tile("PPG", cur.PPG_pct);
   document.getElementById("defTiles").innerHTML =
-    tile("SHG", cur.SHG_pct) + tile("+/-", cur["+/-_pct"]) + tile("Blocks", cur.Blk_pct) + tile("FO%", cur.FO_pct);
+    tile("SHG", cur.SHG_pct) + tile("+/-", cur["+/-_pct"]) +
+    tile("Blocks", cur.Blk_pct) + tile("FO%", cur.FO_pct);
 
-  var seasons = rows.map(function(r) { return r.Season; });
-  var pcts    = rows.map(function(r) { return r.PtGm_pct; });
-  var gPcts   = rows.map(function(r) { return r.G_pct; });
-  var aPcts   = rows.map(function(r) { return r.A_pct; });
+  var seasons = allRows.map(function(r) { return r.Season; });
+  var pcts    = allRows.map(function(r) { return r.PtGm_pct; });
+  var gPcts   = allRows.map(function(r) { return r.G_pct; });
+  var aPcts   = allRows.map(function(r) { return r.A_pct; });
 
   var ctx = document.getElementById("trendChart").getContext("2d");
   if (trendChart) trendChart.destroy();
@@ -340,8 +463,8 @@ function showPlayer(name, filterSeason) {
     type: "line",
     data: { labels: seasons, datasets: [
       { label: "Pt/Gm",   data: pcts,  borderColor: "#60a5fa", backgroundColor: "rgba(96,165,250,0.1)", borderWidth: 2.5, pointBackgroundColor: "#60a5fa", pointRadius: 4, tension: 0.3, fill: true },
-      { label: "Goals",   data: gPcts, borderColor: "#f87171", backgroundColor: "transparent",           borderWidth: 1.5, pointBackgroundColor: "#f87171", pointRadius: 3, tension: 0.3 },
-      { label: "Assists", data: aPcts, borderColor: "#a78bfa", backgroundColor: "transparent",           borderWidth: 1.5, pointBackgroundColor: "#a78bfa", pointRadius: 3, tension: 0.3, borderDash: [5, 3] }
+      { label: "Goals",   data: gPcts, borderColor: "#f87171", backgroundColor: "transparent", borderWidth: 1.5, pointBackgroundColor: "#f87171", pointRadius: 3, tension: 0.3 },
+      { label: "Assists", data: aPcts, borderColor: "#a78bfa", backgroundColor: "transparent", borderWidth: 1.5, pointBackgroundColor: "#a78bfa", pointRadius: 3, tension: 0.3, borderDash: [5, 3] }
     ]},
     options: {
       responsive: true, maintainAspectRatio: false,
@@ -356,9 +479,12 @@ function showPlayer(name, filterSeason) {
     }
   });
 
-  document.getElementById("historyBody").innerHTML = rows.map(function(r) {
+  document.getElementById("historyBody").innerHTML = allRows.map(function(r) {
     var hi = (r.Season === cur.Season) ? "background:rgba(96,165,250,0.06);" : "";
-    return "<tr style='" + hi + "'><td>" + r.Season + "</td><td>" + numFmt(r.G) + "</td><td>" + numFmt(r.A) + "</td><td>" + numFmt(r["Pt/Gm"], 2) + "</td><td><span class='pct-pill' style='background:" + pctColor(r.PtGm_pct) + "'>" + pctFmt(r.PtGm_pct) + "</span></td></tr>";
+    return "<tr style='" + hi + "'><td>" + r.Season + "</td><td>" + numFmt(r.G) +
+      "</td><td>" + numFmt(r.A) + "</td><td>" + numFmt(r["Pt/Gm"], 2) +
+      "</td><td><span class='pct-pill' style='background:" + pctColor(r.PtGm_pct) + "'>" +
+      pctFmt(r.PtGm_pct) + "</span></td></tr>";
   }).join("");
 }
 </script>
